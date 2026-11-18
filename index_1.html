@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learn 1 Thing</title>
+<link rel="preload" as="video" href="bg-tea.mp4" type="video/mp4">
+<style>
+  html,body{margin:0;height:100%;background:#2a1f17;overflow:hidden}
+  #stage{position:fixed;inset:0;overflow:hidden}
+
+  /* on tall/narrow screens the scene shrinks; wall and table tones continue above and below it */
+  #stage.fit{background:linear-gradient(to bottom,#9d865b 0%,#a68a62 46%,#5e381c 54%,#3f2410 100%)}
+
+  /* scene laid out in source-video pixels (1920×1080), scaled to the viewport */
+  #scene{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+  #stage.fit #scene{-webkit-mask-image:linear-gradient(to bottom,transparent,#000 10%,#000 96%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 10%,#000 96%,transparent)}
+  .bg{position:absolute;inset:0;width:100%;height:100%;display:block;transition:opacity .9s ease}
+  .bg.tea{opacity:0}
+  #stage.tea .bg.tea{opacity:1}
+
+  /* TV screen */
+  #screen{position:absolute;left:511px;top:279px;width:741px;height:483px;border-radius:7.5% / 11.5%;overflow:hidden;background:#0b0b0a}
+  /* YouTube player: 16:9, scaled up a little (--zoom) so the top and bottom strips where YouTube
+     draws its title and logo fall outside the rounded screen. The sides are cropped to the TV's shape. */
+  #screen{--zoom:1.15}
+  #yt{position:absolute;top:50%;left:50%;height:calc(100% * var(--zoom));aspect-ratio:16/9;transform:translate(-50%,-50%);
+      pointer-events:none;opacity:0;transition:opacity .4s}
+  #yt.on{opacity:1}
+  #yt iframe{width:100%;height:100%;border:0;display:block}
+  #static{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;opacity:0;transition:opacity .25s;pointer-events:none}
+  #static.on{opacity:.5}
+  /* catches clicks on the screen (the player itself never gets the mouse, so YouTube never shows its UI) */
+  #tap{position:absolute;inset:0;z-index:3;border:0;padding:0;background:none;cursor:pointer}
+  #tap:focus{outline:none}
+  /* tiny TV-style sound indicator, only while muted */
+  #osd{position:absolute;left:30px;top:24px;z-index:4;width:44px;height:44px;color:#9ef59a;filter:drop-shadow(0 0 6px rgba(158,245,154,.8));
+       opacity:0;transition:opacity .3s;pointer-events:none}
+  #osd.on{opacity:.9;animation:blink 1.6s steps(1) infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .knob{position:absolute;border:0;padding:0;background:transparent;border-radius:50%;cursor:pointer}
+  .knob:focus{outline:none}
+  #k1{left:1331px;top:516px;width:84px;height:84px}
+  #k2{left:1341px;top:638px;width:64px;height:64px}
+  #screen::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:radial-gradient(120% 90% at 30% 18%,rgba(255,255,255,.08),transparent 45%);
+    box-shadow:inset 0 0 60px 12px rgba(0,0,0,.5)}
+
+  /* ---------- Coffee / tea toggle ----------
+     Built in its artwork's own pixels (756×424) and scaled into the scene, on the wall beside the mug. */
+  #brew{position:absolute;left:1517px;top:611px;width:756px;height:424px;transform:scale(.116);transform-origin:0 0;
+    padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
+    filter:drop-shadow(0 18px 22px rgba(40,22,8,.35))}
+  /* larger invisible hit area for small screens */
+  #brew::before{content:"";position:absolute;inset:-120px -60px}
+  #brew img{position:absolute;display:block;pointer-events:none;user-select:none}
+  #brew .base{left:35px;top:36px;width:685px;height:353px}
+  #brew .ring{left:0;top:0;width:756px;height:424px}
+  /* icon resting on the track, shows the option you can switch to */
+  #brew .hint{position:absolute;top:212px;width:140px;height:140px;margin:-70px 0 0 -70px;color:#f3eadf;opacity:.55;transition:opacity .35s}
+  #brew .hint svg{width:100%;height:100%;display:block}
+  #brew .hint.coffee{left:211px}
+  #brew .hint.tea{left:543px}
+  #brew[aria-checked="false"] .hint.coffee,#brew[aria-checked="true"] .hint.tea{opacity:0}
+  /* knob slides from the coffee side to the tea side */
+  #brew .knob{position:absolute;left:35px;top:45px;width:361px;height:388px;transition:transform .55s cubic-bezier(.65,0,.25,1)}
+  #brew[aria-checked="true"] .knob{transform:translateX(332px)}
+  #brew .knob img{left:0;top:0;width:361px;height:388px}
+  #brew .knob .icon{position:absolute;left:176px;top:167px;width:150px;height:150px;margin:-75px 0 0 -75px;transition:opacity .3s,transform .55s cubic-bezier(.65,0,.25,1)}
+  #brew .knob .icon svg{width:100%;height:100%;display:block}
+  #brew .knob .icon.coffee{color:#5b3a26}
+  #brew .knob .icon.tea{color:#58703a;opacity:0;transform:rotate(-40deg) scale(.7)}
+  #brew[aria-checked="true"] .knob .icon.coffee{opacity:0;transform:rotate(40deg) scale(.7)}
+  #brew[aria-checked="true"] .knob .icon.tea{opacity:1;transform:none}
+  #brew:focus{outline:none}
+  #brew:focus-visible .ring{filter:drop-shadow(0 0 14px rgba(224,104,42,.9))}
+  @media (prefers-reduced-motion:reduce){ .bg,#brew .knob,#brew .knob .icon{transition-duration:.01s} }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-coffee" viewBox="0 0 100 100"><path fill="currentColor" d="m28 82.2c-3.1 2.1-1.9 6.8 1.7 7.4 12.8 2.1 29.3-4.2 42.5-17.4 16-16 21.8-36.8 15-50-1-2-3.5-2.9-5.5-1.8-14.1 7.3-24.5 19.1-30.2 32.9-4.8 11.5-12.9 21.6-23.5 28.9z"/><path fill="currentColor" d="m27.8 27.8c-16.2 16.2-21.9 37.3-14.7 50.5 1.1 2 3.5 2.8 5.5 1.7 12-6.3 21.4-16.5 26.7-29.3 5.6-13.6 15.1-24.9 27.2-32.7 3.2-2 2.2-6.8-1.5-7.5-12.9-2.4-29.8 3.9-43.2 17.3z"/></symbol>
+  <symbol id="i-tea" viewBox="0 0 64 64"><path fill="currentColor" d="m35.292 25.182c-.632.526-1.178 1.033-1.673 1.551-3.43 3.519-5.509 8.025-5.975 12.867-.067.692-.1 1.39-.1 2.094v9.518l20.199-20.199c.391-.391 1.023-.391 1.414 0s.391 1.023 0 1.414l-20.21 20.209h9.514c11.877 0 21.539-9.662 21.539-21.539v-10.917h-10.917c-5.117 0-9.886 1.729-13.791 5.001z"/><path fill="currentColor" d="m28.112 31.013c.152-.297.325-.583.49-.874.198-.349.393-.699.609-1.038.183-.286.383-.56.579-.839.229-.327.457-.654.704-.97.212-.271.44-.532.665-.795.184-.215.352-.441.544-.65-2.637-5.435-7.445-9.497-13.29-11.195l-10.499-3.05-3.051 10.5c-3.319 11.39 3.261 23.362 14.668 26.687l6.013 1.739v-4.784l-10.639-19.351c-.267-.484-.09-1.092.395-1.358.482-.267 1.092-.09 1.357.395l8.891 16.172c.003-.723.036-1.442.103-2.154.023-.248.072-.49.103-.737.062-.491.12-.983.213-1.467.056-.292.137-.575.203-.864.099-.43.192-.862.315-1.284.088-.303.201-.597.301-.896.133-.397.261-.796.415-1.185.121-.304.264-.597.397-.895.166-.371.327-.744.513-1.107z"/></symbol>
+</svg>
+
+<div id="stage">
+  <div id="scene">
+    <video class="bg coffee" src="bg-coffee.mp4" poster="poster-coffee.jpg" muted autoplay loop playsinline aria-hidden="true"></video>
+    <video class="bg tea" src="bg-tea.mp4" poster="poster-tea.jpg" muted autoplay loop playsinline aria-hidden="true"></video>
+    <div id="screen">
+      <div id="yt"><div id="ytp"></div></div>
+      <canvas id="static" width="248" height="162"></canvas>
+      <svg id="osd" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 9v6h4l5 4V5L7 9H3zm13.6 3 2.7-2.7-1.4-1.4-2.7 2.7-2.7-2.7-1.4 1.4 2.7 2.7-2.7 2.7 1.4 1.4 2.7-2.7 2.7 2.7 1.4-1.4z"/></svg>
+      <button id="tap" aria-label="Sound on or off"></button>
+    </div>
+    <button class="knob" id="k1" aria-label="Next video" title="Next video"></button>
+    <button class="knob" id="k2" aria-label="Previous video" title="Previous video"></button>
+    <button id="brew" role="switch" aria-checked="false" aria-label="Tea instead of coffee">
+      <img class="base" src="ui/base.webp" alt="">
+      <span class="hint coffee"><svg><use href="#i-coffee"/></svg></span>
+      <span class="hint tea"><svg><use href="#i-tea"/></svg></span>
+      <img class="ring" src="ui/ring.webp" alt="">
+      <span class="knob">
+        <img src="ui/knob.webp" alt="">
+        <span class="icon coffee"><svg><use href="#i-coffee"/></svg></span>
+        <span class="icon tea"><svg><use href="#i-tea"/></svg></span>
+      </span>
+    </button>
+  </div>
+</div>
+<script src="videos.js"></script>
+<script>
+(() => {
+  const W = 1920, H = 1080;
+  // area that must always stay in view: the TV plus the toggle beside it (source pixels)
+  const F = { x0: 470, y0: 240, x1: 1650, y1: 865 };
+  const fw = F.x1 - F.x0, fh = F.y1 - F.y0, fcx = (F.x0 + F.x1) / 2, fcy = (F.y0 + F.y1) / 2;
+  const stage = document.getElementById('stage'), scene = document.getElementById('scene');
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+  function layout() {
+    const vw = innerWidth, vh = innerHeight, m = 12;
+    let s = Math.max(vw / W, vh / H), cover = true;
+    if (fw * s > vw - 2 * m || fh * s > vh - 2 * m) {
+      // fill the screen if the focus area still fits once cropped; otherwise shrink to fit
+      if (fw * s > vw - 2 * m || fh * s > vh - 2 * m) { s = Math.min((vw - 2 * m) / fw, (vh - 2 * m) / fh); cover = false; }
+    }
+    // centre on the TV, then make sure the whole focus area (TV + toggle) stays in view
+    let ox = vw / 2 - 965 * s, oy = vh / 2 - 554 * s;
+    if (!cover) { ox = vw / 2 - fcx * s; oy = vh / 2 - fcy * s; }
+    if (cover) {
+      ox = clamp(ox, vw - m - F.x1 * s, m - F.x0 * s); oy = clamp(oy, vh - m - F.y1 * s, m - F.y0 * s);
+      ox = clamp(ox, vw - W * s, 0); oy = clamp(oy, vh - H * s, 0);
+    }
+    scene.style.transform = `translate(${ox}px,${oy}px) scale(${s})`;
+    stage.classList.toggle('fit', !cover);
+  }
+  addEventListener('resize', layout); layout();
+
+  // both scenes run on one clock so the crossfade lines up frame for frame
+  const master = document.querySelector('.bg.coffee');
+  const followers = [...document.querySelectorAll('.bg.tea')];
+  function sync(tol) {
+    const D = master.duration || 5.04, m = master.currentTime;
+    followers.forEach(v => {
+      const d = (((v.currentTime - m) % D) + D) % D;      // offset, aware of the loop wrapping
+      if (Math.min(d, D - d) > tol) v.currentTime = m;
+    });
+  }
+  setInterval(() => sync(0.06), 400);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) document.querySelectorAll('video').forEach(v => v.play().catch(() => {})); });
+
+  const brew = document.getElementById('brew');
+  brew.addEventListener('click', () => {
+    const tea = brew.getAttribute('aria-checked') !== 'true';
+    sync(0.03);
+    brew.setAttribute('aria-checked', tea);
+    stage.classList.toggle('tea', tea);
+  });
+
+  /* ---------- TV: YouTube player ---------- */
+  const ALL = (window.VIDEOS || []).slice();
+  for (let i = ALL.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [ALL[i], ALL[j]] = [ALL[j], ALL[i]]; }
+  let idx = 0, player = null, ready = false, muted = true;
+  const yt = document.getElementById('yt'), osd = document.getElementById('osd');
+
+  // static between channels
+  const cv = document.getElementById('static'), cx = cv.getContext('2d'), img = cx.createImageData(cv.width, cv.height);
+  let noiseOn = false;
+  function noise() {
+    if (!noiseOn) return;
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255 | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+    cx.putImageData(img, 0, 0); requestAnimationFrame(noise);
+  }
+  function setNoise(on) { const was = noiseOn; noiseOn = on; cv.classList.toggle('on', on); if (on && !was) noise(); }
+  setNoise(true);
+
+  function tune(step) {
+    if (!ready || !ALL.length) return;
+    idx = (idx + step + ALL.length) % ALL.length;
+    yt.classList.remove('on'); setNoise(true);
+    player.loadVideoById(ALL[idx].id);
+  }
+  function setMuted(m) {
+    muted = m;
+    if (player && ready) { if (m) player.mute(); else { player.unMute(); player.setVolume(85); player.playVideo(); } }
+    osd.classList.toggle('on', m);
+  }
+
+  window.onYouTubeIframeAPIReady = () => {
+    player = new YT.Player('ytp', {
+      host: 'https://www.youtube-nocookie.com',
+      videoId: ALL[0].id,
+      playerVars: { autoplay: 1, mute: 1, controls: 0, disablekb: 1, fs: 0, rel: 0, iv_load_policy: 3, playsinline: 1, modestbranding: 1, cc_load_policy: 0, origin: location.origin },
+      events: {
+        onReady: e => { ready = true; e.target.mute(); e.target.playVideo(); osd.classList.add('on'); },
+        onStateChange: e => {
+          if (e.data === YT.PlayerState.PLAYING) { setTimeout(() => { yt.classList.add('on'); setNoise(false); }, 150); }
+          if (e.data === YT.PlayerState.ENDED) tune(1);
+        },
+        onError: () => tune(1) // embedding disabled or removed: skip it
+      }
+    });
+  };
+  const tag = document.createElement('script'); tag.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(tag);
+
+  document.getElementById('tap').addEventListener('click', () => setMuted(!muted));
+  document.getElementById('k1').addEventListener('click', () => tune(1));
+  document.getElementById('k2').addEventListener('click', () => tune(-1));
+  addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'n') tune(1);
+    if (e.key === 'ArrowLeft' || e.key === 'p') tune(-1);
+    if (e.key === 'm') setMuted(!muted);
+  });
+})();
+</script>
+</body>
+</html>
