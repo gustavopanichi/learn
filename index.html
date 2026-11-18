@@ -6,8 +6,20 @@
 <title>Learn 1 Thing</title>
 <link rel="preload" as="image" href="bg/poster.jpg">
 <link rel="preload" as="image" href="ui/tv.webp">
+<link rel="preload" as="font" href="fonts/InstrumentSerif-Regular.ttf" type="font/ttf" crossorigin>
 <style>
+  @font-face{font-family:"Instrument Serif";src:url(fonts/InstrumentSerif-Regular.ttf) format("truetype");font-display:block}
   html,body{margin:0;height:100%;background:#2a1f17;overflow:hidden}
+
+  /* moving film grain over everything */
+  #grain{position:fixed;inset:-50%;z-index:20;pointer-events:none;background:url(ui/grain.png);opacity:.09;mix-blend-mode:overlay;animation:grain .9s steps(6) infinite}
+  @keyframes grain{0%{transform:translate(0,0)}17%{transform:translate(-6%,4%)}33%{transform:translate(5%,-7%)}50%{transform:translate(-3%,8%)}67%{transform:translate(8%,2%)}83%{transform:translate(-8%,-4%)}100%{transform:translate(0,0)}}
+
+  /* fullscreen button, fixed to the window's top-right corner */
+  #fs{position:fixed;top:20px;right:20px;z-index:21;width:28px;height:28px;padding:0;border:0;background:none;color:#fff;cursor:pointer;opacity:.9;transition:opacity .2s,transform .2s}
+  #fs:hover{opacity:1;transform:scale(1.08)}
+  #fs svg{width:100%;height:100%;display:block}
+  #fs[hidden]{display:none}
   #stage{position:fixed;inset:0;overflow:hidden}
   /* on tall/narrow screens the scene shrinks; wall and table tones continue above and below it */
   #stage.fit{background:linear-gradient(to bottom,#9d865b 0%,#a68a62 46%,#5e381c 54%,#3f2410 100%)}
@@ -25,7 +37,7 @@
 
   /* ---------- TV (still image over the background) ----------
      tv.webp is 1279×678; its screen is a transparent hole at 207–908 × 37–509. */
-  #tv{position:absolute;left:271px;top:242px;width:1279px;height:678px;z-index:1}
+  #tv{position:absolute;left:316px;top:247px;width:1279px;height:678px;z-index:1}
   #tv .png{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;user-select:none;z-index:2}
   #screen{position:absolute;left:205px;top:35px;width:706px;height:477px;overflow:hidden;background:#0b0b0a;z-index:1;--zoom:1}
   #yt{position:absolute;top:50%;left:50%;height:calc(100% * var(--zoom));aspect-ratio:16/9;transform:translate(-50%,-50%);pointer-events:none;opacity:0;transition:opacity .4s}
@@ -48,7 +60,7 @@
 
   /* ---------- Toggles ----------
      Built in the artwork's own pixels (756×424) and scaled into the scene. */
-  .tg{position:absolute;z-index:2;width:756px;height:424px;transform:scale(.116);transform-origin:0 0;padding:0;border:0;background:none;cursor:pointer;
+  .tg{position:absolute;z-index:2;width:756px;height:424px;transform:scale(.1614);transform-origin:0 0;padding:0;border:0;background:none;cursor:pointer;
       -webkit-tap-highlight-color:transparent;filter:drop-shadow(0 18px 22px rgba(40,22,8,.35));transition:opacity .6s}
   .tg::before{content:"";position:absolute;inset:-120px -60px}
   .tg img{position:absolute;display:block;pointer-events:none;user-select:none}
@@ -70,12 +82,37 @@
   .tg:focus-visible .ring{filter:drop-shadow(0 0 14px rgba(224,104,42,.9))}
   #stage.loading .tg{opacity:.0;pointer-events:none}
   /* positions in the scene */
-  #t-pet{left:175px;top:905px}
-  #t-drink{left:1425px;top:652px}
-  #t-time{left:560px;top:170px}
+  #t-pet{left:178px;top:580px}
+  #t-drink{left:1460px;top:838px}
+  #t-time{left:1692px;top:206px}
+
+  /* ---------- Title and duration picker ---------- */
+  .serif{position:absolute;left:0;width:1920px;text-align:center;font-family:"Instrument Serif",Georgia,serif;font-weight:400;color:#f7efe5;
+         letter-spacing:-.01em;text-shadow:0 2px 18px rgba(30,15,5,.45);pointer-events:none;margin:0;line-height:1;z-index:2}
+  #title{top:96px;font-size:76px}
+  #sub{top:873px;font-size:34px}
+  #stage.loading .serif,#stage.loading #dur{opacity:0}
+  .serif,#dur{transition:opacity .6s}
+
+  /* 3-way duration toggle, built in its artwork's own pixels (1054×424) and scaled into the scene */
+  #dur{position:absolute;left:838px;top:930px;width:1054px;height:424px;transform:scale(.2296);transform-origin:0 0;z-index:2;
+       filter:drop-shadow(0 18px 22px rgba(40,22,8,.35))}
+  #dur img{position:absolute;display:block;pointer-events:none;user-select:none}
+  #dur .base{left:34px;top:35px;width:985px;height:353px}
+  #dur .ring{left:0;top:0;width:1054px;height:424px}
+  #dur .knob{position:absolute;left:35px;top:45px;width:361px;height:388px;transition:transform .5s cubic-bezier(.65,0,.25,1)}
+  #dur .knob img{left:0;top:0;width:361px;height:388px}
+  #dur[data-i="1"] .knob{transform:translateX(315px)}
+  #dur[data-i="2"] .knob{transform:translateX(630px)}
+  #dur .opt{position:absolute;top:0;width:351px;height:424px;padding:0;border:0;background:none;cursor:pointer;z-index:2;-webkit-tap-highlight-color:transparent}
+  #dur .opt:nth-of-type(1){left:0}#dur .opt:nth-of-type(2){left:351px}#dur .opt:nth-of-type(3){left:702px}
+  #dur .opt img{left:50%;top:50%;transform:translate(-50%,-50%);opacity:.5;filter:invert(1) sepia(.35);transition:opacity .35s,filter .35s}
+  #dur .opt[aria-checked="true"] img{opacity:.88;filter:none}
+  #dur .opt:focus{outline:none}
+  #dur .opt:focus-visible img{opacity:1}
   /* icon colours on the knob */
   .c-cat{color:#5a4637}.c-dog{color:#8b5a2b}.c-coffee{color:#5b3a26}.c-tea{color:#58703a}.c-day{color:#d08a18}.c-night{color:#3f4b7d}
-  @media (prefers-reduced-motion:reduce){ .bg,.tg .knob,.tg .icon{transition-duration:.01s} }
+  @media (prefers-reduced-motion:reduce){ .bg,.tg .knob,.tg .icon,#dur .knob{transition-duration:.01s} #grain{animation:none} }
 </style>
 </head>
 <body>
@@ -107,8 +144,21 @@
     <button class="tg" id="t-pet" data-key="pet" data-a="cat" data-b="dog" role="switch" aria-checked="false" aria-label="Dog instead of cat"></button>
     <button class="tg" id="t-drink" data-key="drink" data-a="coffee" data-b="tea" role="switch" aria-checked="false" aria-label="Tea instead of coffee"></button>
     <button class="tg" id="t-time" data-key="time" data-a="day" data-b="night" role="switch" aria-checked="false" aria-label="Night instead of day"></button>
+
+    <h1 class="serif" id="title">Learn something today</h1>
+    <p class="serif" id="sub">How long do you have?</p>
+    <div id="dur" role="radiogroup" aria-label="How long do you have?" data-i="0">
+      <img class="base" src="ui/long-base.webp" alt="">
+      <img class="ring" src="ui/long-ring.webp" alt="">
+      <span class="knob"><img src="ui/knob.webp" alt=""></span>
+      <button class="opt" role="radio" aria-checked="true" aria-label="1 to 5 minutes" data-bucket="Under 5 min"><img src="ui/d-1-5.webp" alt=""></button>
+      <button class="opt" role="radio" aria-checked="false" aria-label="5 to 10 minutes" data-bucket="5–10 min"><img src="ui/d-5-10.webp" alt=""></button>
+      <button class="opt" role="radio" aria-checked="false" aria-label="10 to 15 minutes" data-bucket="10–15 min"><img src="ui/d-10-15.webp" alt=""></button>
+    </div>
   </div>
 </div>
+<div id="grain" aria-hidden="true"></div>
+<button id="fs" aria-label="Full screen" title="Full screen"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="m13 .5h-10a2.5009 2.5009 0 0 0 -2.5 2.5v10a2.5009 2.5009 0 0 0 2.5 2.5h10a2.5009 2.5009 0 0 0 2.5-2.5v-10a2.5009 2.5009 0 0 0 -2.5-2.5zm-5.65 8.85-2.15 2.15h.8a.5.5 0 0 1 0 1h-2a.4058.4058 0 0 1 -.19-.04h-.01a.4738.4738 0 0 1 -.26-.26v-.01a.4058.4058 0 0 1 -.04-.19v-2a.5.5 0 0 1 1 0v.8l2.15-2.15a.495.495 0 0 1 .7.7zm5.15-3.35a.5.5 0 0 1 -1 0v-.8l-2.15 2.15a.4833.4833 0 0 1 -.7 0 .4833.4833 0 0 1 0-.7l2.15-2.15h-.8a.5.5 0 0 1 0-1h2a.4058.4058 0 0 1 .19.04h.01a.4738.4738 0 0 1 .26.26v.01a.4058.4058 0 0 1 .04.19z"/></svg></button>
 
 <script src="videos.js"></script>
 <script>
@@ -117,8 +167,8 @@
   const stage = document.getElementById('stage'), scene = document.getElementById('scene');
 
   /* ---------- Fit: keep the TV and all toggles in view ---------- */
-  const F = { x0: 160, y0: 160, x1: 1525, y1: 960 };   // focus area, source pixels
-  const TVC = { x: 920, y: 556 };                       // TV centre
+  const F = { x0: 170, y0: 85, x1: 1825, y1: 1035 };   // focus area (title, TV, toggles, duration picker), source pixels
+  const TVC = { x: 965, y: 561 };                       // TV centre
   const fw = F.x1 - F.x0, fh = F.y1 - F.y0, fcx = (F.x0 + F.x1) / 2, fcy = (F.y0 + F.y1) / 2;
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
   function layout() {
@@ -150,9 +200,8 @@
 
   /* ---------- Backgrounds: preload every loop, then crossfade between them ---------- */
   const state = { pet: 'cat', drink: 'coffee', time: 'day' };
-  const FILES = ['cat-coffee-day', 'cat-coffee-night', 'cat-tea-day', 'dog-coffee-day', 'dog-coffee-night', 'dog-tea-day', 'dog-tea-night'];
-  // cat-tea-night isn't made yet: until it is, that combination shows cat-coffee-night
-  const FALLBACK = { 'cat-tea-night': 'cat-coffee-night' };
+  const FILES = ['cat-coffee-day', 'cat-coffee-night', 'cat-tea-day', 'cat-tea-night', 'dog-coffee-day', 'dog-coffee-night', 'dog-tea-day', 'dog-tea-night'];
+  const FALLBACK = {}; // e.g. { 'cat-tea-night': 'cat-coffee-night' } if a loop is ever missing
   const vids = {};
   let active = null, z = 1, switching = Promise.resolve();
 
@@ -199,8 +248,14 @@
   document.addEventListener('visibilitychange', () => { if (!document.hidden && active) active.play().catch(() => {}); });
 
   /* ---------- TV: YouTube player ---------- */
-  const ALL = (window.VIDEOS || []).slice();
-  for (let i = ALL.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [ALL[i], ALL[j]] = [ALL[j], ALL[i]]; }
+  // one shuffled playlist per duration; the duration picker switches between them
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const LISTS = {};
+  (window.VIDEOS || []).forEach(v => (LISTS[v.bucket] = LISTS[v.bucket] || []).push(v));
+  Object.values(LISTS).forEach(shuffle);
+  const POS = {};
+  let bucket = 'Under 5 min';
+  let ALL = LISTS[bucket] || [];
   let idx = 0, player = null, ready = false, muted = false, wokeAt = 0;
   const yt = document.getElementById('yt'), osd = document.getElementById('osd');
 
@@ -217,7 +272,7 @@
 
   function tune(step) {
     if (!ready || !ALL.length) return;
-    idx = (idx + step + ALL.length) % ALL.length;
+    idx = (idx + step + ALL.length) % ALL.length; POS[bucket] = idx;
     yt.classList.remove('on'); setNoise(true);
     player.loadVideoById(ALL[idx].id);
   }
@@ -235,7 +290,7 @@
     if (!ALL.length) return;
     player = new YT.Player('ytp', {
       host: 'https://www.youtube-nocookie.com',
-      videoId: ALL[0].id,
+      videoId: ALL[idx].id,
       playerVars: { autoplay: 1, mute: 0, controls: 0, disablekb: 1, fs: 0, rel: 0, iv_load_policy: 3, playsinline: 1, modestbranding: 1, cc_load_policy: 0, origin: location.origin },
       events: {
         onReady: e => {
@@ -272,6 +327,27 @@
   nextBtn.addEventListener('pointerdown', press);
   ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => nextBtn.addEventListener(t, release));
   nextBtn.addEventListener('click', e => { if (e.detail === 0) { press(); release(); } tune(1); });
+
+  // duration picker
+  const dur = document.getElementById('dur'), opts = [...dur.querySelectorAll('.opt')];
+  function pick(i) {
+    if (opts[i].getAttribute('aria-checked') === 'true') return;
+    opts.forEach((o, j) => o.setAttribute('aria-checked', j === i));
+    dur.dataset.i = i;
+    POS[bucket] = idx; bucket = opts[i].dataset.bucket; ALL = LISTS[bucket] || [];
+    if (!ready) { idx = 0; return; }
+    idx = (POS[bucket] ?? -1); tune(1);
+  }
+  opts.forEach((o, i) => o.addEventListener('click', () => pick(i)));
+
+  // fullscreen
+  const fsBtn = document.getElementById('fs'), root = document.documentElement;
+  const fsOn = () => document.fullscreenElement || document.webkitFullscreenElement;
+  if (!(root.requestFullscreen || root.webkitRequestFullscreen)) fsBtn.hidden = true;
+  fsBtn.addEventListener('click', () => {
+    if (fsOn()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else (root.requestFullscreen || root.webkitRequestFullscreen).call(root).catch?.(() => {});
+  });
 
   addEventListener('keydown', e => {
     if (e.key === 'ArrowRight' || e.key === 'n') { press(); release(); tune(1); }
