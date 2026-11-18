@@ -11,7 +11,7 @@ YouTube videos only play when the site is served over http(s). Opening `index.ht
 To test locally instead: run `npx serve` in this folder and open the address it prints.
 
 ## How it works
-- Videos start with sound. If the browser blocks that on a first visit, the video plays muted and sound comes on at the first click, tap or key press. Clicking the TV screen also pauses/plays.
+- Videos always start with sound, never muted. If the browser won't allow sound before the visitor has interacted with the page, the TV waits on static and starts (with sound) at the first click, tap or key press anywhere. Clicking the TV screen also pauses/plays.
 - Keyboard: → next, ← previous, Space pause, M mute.
 - Three toggles swap the background loop: cat/dog (by the bed), coffee/tea (by the mug), day/night (by the window). All 8 loops in `bg/` are downloaded before the site starts, so switching is instant.
 - TV buttons: next (down while pressed), play/pause (stays down while paused), mute (stays down while muted).
