@@ -116,7 +116,9 @@
   #dur[data-i="2"] .knob{transform:translateX(630px)}
   #dur .opt{position:absolute;top:0;width:351px;height:424px;padding:0;border:0;background:none;cursor:pointer;z-index:2;-webkit-tap-highlight-color:transparent}
   #dur .opt:nth-of-type(1){left:0}#dur .opt:nth-of-type(2){left:351px}#dur .opt:nth-of-type(3){left:702px}
-  #dur .opt img{left:50%;top:50%;transform:translate(-50%,-50%);opacity:.5;filter:invert(1) sepia(.35);transition:opacity .35s,filter .35s}
+  /* each label sits on the centre of the knob's stop for that option (211, 526, 841 across; 212 down) */
+  #dur .opt:nth-of-type(1) img{left:211px}#dur .opt:nth-of-type(2) img{left:175px}#dur .opt:nth-of-type(3) img{left:139px}
+  #dur .opt img{top:212px;transform:translate(-50%,-50%);opacity:.5;filter:invert(1) sepia(.35);transition:opacity .35s,filter .35s}
   #dur .opt[aria-checked="true"] img{opacity:.88;filter:none}
   #dur .opt:focus{outline:none}
   #dur .opt:focus-visible img{opacity:1}
