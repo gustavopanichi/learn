@@ -11,12 +11,12 @@ YouTube videos only play when the site is served over http(s). Opening `index.ht
 To test locally instead: run `npx serve` in this folder and open the address it prints.
 
 ## How it works
-- Videos start with sound. If the browser blocks that on a first visit, the video plays muted and sound comes on at the first click, tap or key press. Click the TV screen to pause/play.
+- Videos start with sound. If the browser blocks that on a first visit, the video plays muted and sound comes on at the first click, tap or key press. Clicking the TV screen also pauses/plays.
 - Keyboard: → next, ← previous, Space pause, M mute.
 - Three toggles swap the background loop: cat/dog (by the bed), coffee/tea (by the mug), day/night (by the window). All 8 loops in `bg/` are downloaded before the site starts, so switching is instant.
-- The big orange button on the TV: next video.
+- TV buttons: next (down while pressed), play/pause (stays down while paused), mute (stays down while muted).
 - "How long do you have?" picker (1–5 / 5–10 / 10–15 min) chooses which videos play; changing it switches straight to a video of that length.
-- Fullscreen button top-right.
+- Fullscreen button top-right. A light moving film grain sits over the whole page (`#grain` in `index.html`; change its `opacity` to tune it).
 - Font: Instrument Serif, self-hosted in `fonts/` (SIL Open Font License).
 - When a video ends, the next one starts. Videos that can't be embedded are skipped.
 
