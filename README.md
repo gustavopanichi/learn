@@ -14,6 +14,8 @@ To test locally instead: run `npx serve` in this folder and open the address it 
 - Videos always start with sound, never muted. If the browser won't allow sound before the visitor has interacted with the page, the TV shows the video's thumbnail with a pulsing play mark and starts (with sound) at the first click, tap or key press anywhere. Clicking the TV screen also pauses/plays.
 - Keyboard: → next, ← previous, Space pause, M mute.
 - Three toggles swap the background loop: cat/dog (by the bed), coffee/tea (by the mug), day/night (by the window). The starting loop loads first; the other 7 download in the background, one at a time. Small screens use the 960×540 copies in `bg/sm/`.
+- Microwave-style display on the TV: time left on the current video (blinks while paused).
+- Toggles make a small click sound (generated in the browser, no audio file).
 - TV buttons: next (down while pressed), play/pause (stays down while paused), mute (stays down while muted).
 - "How long do you have?" picker (1–5 / 5–10 / 10–15 min) chooses which videos play; changing it switches straight to a video of that length.
 - "All videos" tab on the right edge opens a drawer listing every video by length, with a checkmark on the ones already seen (remembered in the visitor's browser; a video counts as seen after 60s, or half of it if shorter). Clicking one plays it; the YouTube icon opens it on YouTube.
