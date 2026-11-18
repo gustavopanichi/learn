@@ -17,6 +17,42 @@
 
   /* SketchDeck halfpipe, fixed to the window's top-left corner */
   #sd{position:fixed;top:20px;left:20px;z-index:21;height:28px;width:auto;opacity:.9;pointer-events:none;user-select:none}
+  /* ---------- Video list drawer, attached to the right edge ---------- */
+  #drawer-tab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:22;display:flex;flex-direction:column;align-items:center;gap:10px;
+    padding:16px 9px 14px 11px;border:0;border-radius:14px 0 0 14px;background:rgba(246,238,226,.92);color:#2a1f17;cursor:pointer;
+    box-shadow:-6px 8px 24px rgba(30,15,5,.3);font:400 17px/1 "Instrument Serif",Georgia,serif;transition:right .45s cubic-bezier(.65,0,.25,1),background .2s}
+  #drawer-tab:hover{background:#fff}
+  #drawer-tab svg{width:18px;height:18px}
+  #drawer-tab .lbl{writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:.02em}
+  #drawer-tab .n{font-size:13px;opacity:.6;writing-mode:vertical-rl;transform:rotate(180deg)}
+  body.drawer-open #drawer-tab{right:min(380px,88vw)}
+  #drawer{position:fixed;top:0;right:0;bottom:0;width:min(380px,88vw);z-index:22;transform:translateX(100%);transition:transform .45s cubic-bezier(.65,0,.25,1);
+    background:rgba(32,22,15,.88);backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);color:#f3eadf;
+    box-shadow:-20px 0 50px rgba(0,0,0,.35);display:flex;flex-direction:column;font-family:Inter,system-ui,-apple-system,sans-serif}
+  body.drawer-open #drawer{transform:none}
+  #drawer header{display:flex;align-items:baseline;justify-content:space-between;padding:26px 24px 10px}
+  #drawer h2{margin:0;font:400 34px/1 "Instrument Serif",Georgia,serif}
+  #drawer .total{font-size:13px;opacity:.6}
+  #drawer .list{overflow-y:auto;padding:0 12px 28px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(243,234,223,.25) transparent}
+  #drawer h3{display:flex;justify-content:space-between;align-items:baseline;margin:22px 12px 8px;font:400 24px/1 "Instrument Serif",Georgia,serif}
+  #drawer h3 span{font:500 12px/1 Inter,system-ui,sans-serif;opacity:.55}
+  #drawer ul{list-style:none;margin:0;padding:0}
+  #drawer li button{width:100%;display:grid;grid-template-columns:88px 1fr 22px;gap:12px;align-items:center;padding:8px 10px;border:0;border-radius:12px;
+    background:none;color:inherit;text-align:left;cursor:pointer;font:inherit;transition:background .15s}
+  #drawer li button:hover,#drawer li button:focus-visible{background:rgba(243,234,223,.08);outline:none}
+  #drawer li.now button{background:rgba(255,145,30,.16)}
+  #drawer .th{width:88px;aspect-ratio:16/9;border-radius:7px;object-fit:cover;background:#3a2a1e;display:block}
+  #drawer .t{font-size:13.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #drawer .m{font-size:12px;opacity:.55;margin-top:3px}
+  #drawer li.now .m::before{content:"Now playing · ";color:#ffa04a;opacity:1}
+  #drawer .ck{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(243,234,223,.25);display:grid;place-items:center}
+  #drawer .ck svg{width:13px;height:13px;opacity:0}
+  #drawer li.seen .ck{background:#ff8a1e;border-color:#ff8a1e}
+  #drawer li.seen .ck svg{opacity:1}
+  #drawer li.seen .t{opacity:.7}
+  #scrim{position:fixed;inset:0;z-index:21;background:rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .45s}
+  body.drawer-open #scrim{opacity:1;pointer-events:auto}
+
   /* fullscreen button, fixed to the window's top-right corner */
   #fs{position:fixed;top:20px;right:20px;z-index:21;width:28px;height:28px;padding:0;border:0;background:none;color:#fff;cursor:pointer;opacity:.9;transition:opacity .2s,transform .2s}
   #fs:hover{opacity:1;transform:scale(1.08)}
@@ -180,6 +216,15 @@
   <h1 id="title"><svg id="logo" viewBox="0 0 693.36 530.56" role="img" aria-label="Learn something today"><path fill="currentColor" d="M236.92,291.66c-.66-5.84.63-11.98,3.15-16.96l12.83-25.29c1.46-2.88,2.61-5.16,2.66-9.01-21.57,10.53-36.25,39.49-46.99,60.84-2.62,5.21-11.69,6.09-15.94,2.43-1.93-1.67-1.32-6.23-.2-8.5l16.91-34.35,6.71-14.9c.27-.59.02-2.78-.55-2.77l-2.82.06c-7.91,5.54-14.45,11.9-20.57,19.48-10.36,13.89-18.07,28.6-25.8,44.19-2.11,3.01-8.37,3.6-11.67,3.06-4.15-.67-6.77-5-4.93-8.73l17.45-35.46,10.33-20.53c-7.83,5.5-15.38,10-24.21,12.52l-3.1,12.91c-7.33,19.43-25.3,42.89-45.64,46.6-11.09,2.02-20.77-4.87-22.84-15.71-1.43-7.49-.17-15.11,1.85-22.58l-15.14,7.24c1.53,8.16,1.05,16.42-2.42,24.31-7.51,17.07-25.02,28.44-43.71,26.89-7.74-.64-14.74-4.95-18.12-10.03-4.85-7.3-5.25-15.13-2.28-23,6.49-17.19,28.56-24.37,32.18-14.61.68,1.83-.57,6.24-2.98,6.63-8.76,1.42-15.83,8.28-14.57,17.5.8,5.93,7.1,9.18,13.02,8.12,14.49-2.59,23.97-17.55,19.19-31.74l-6.48-19.25c-3.67-10.9-2.32-21.84,5.15-30.48,6.64-7.68,17.47-12.5,28.15-9.94,4.86,1.16,8.72,4.86,9.26,8.85.7,5.19-1.64,10.43-6.66,12.19-2.82.98-5.49-.93-5.86-3.67-.21-1.52-.7-3.38-1.47-3.98-.91-.72-3.86-1-4.95-.6-5.72,2.12-9.26,8.72-7.16,14.49l6.91,19.06c9.42-4.3,19.09-8.9,25.89-16.84,5.68-6.62,10.51-13.34,17.39-18.7s14.9-9.68,23.71-10.08c9.96-.45,17.81,5.83,19.79,16.07,10.36-3.17,18.25-9.45,26.14-16.42,4.45-3.92,11.04-7.46,16.57-3.64,4.87,3.35,3.46,10.39,1.45,15.41,9.75-10.67,26.38-23.19,35.71-14.18,3.27,3.16,3.96,8.42,3.27,13.19,9.22-10.73,25.78-22.97,35.97-15.34,10.62,7.97.15,23.06-4.93,33.66l-11,22.94c-.42.89-.05,3.89.78,4.35,4.25,2.39,19.29-12.01,24.43-19.83,6.13-23.47,28.77-52.44,52.52-50.77,8.71.62,14.58,7.55,12.99,16.21-3.62,19.78-26.8,33.69-46.46,36.95-.88,4.09-.75,8.26,1.49,11.46,9.37,13.37,43.71-16.85,50.87-30.54l18.33-35.03-20.18,1.24c-2.33-2.23-1.41-6.59,0-8.65,2.25-3.3,5.01-4.18,9.01-4.5l18.45-1.49,14.46-23.82c2.71-4.45,10.87-5.16,15.28-2.79,1.94,1.03,2.02,5.26,1.03,7.02l-9.99,17.7,18.06-.93c3.18,3.67-.21,11.81-5.14,12.32l-20.3,2.08c-9.07,16.22-17.64,32.55-24.7,49.99-1.65,4.07-3.11,9.37-1.32,13.37,8.05,4.58,32.88-23.58,37.03-31.46l28.63-54.47c5.93-11.27,12.88-21.29,21.63-30.4,9.18-9.55,24.81-18.67,32.67-11.33,7.41,6.91,1.77,20.59-5.72,30.3-8.27,10.73-17.94,19.81-28.22,28.69-6.6,5.7-13.26,10.92-18.14,18.14,11.24-10.25,27.78-21.59,37.25-11.37,6.53,7.05.35,19.42-5.53,28.85l-12.77,24.46.6,3.39c1.09,6.06,23.98-14.6,31.35-27.61l18.87-33.3c5.82-4.47,15.12-4.4,17.01-.08.54,1.22.24,4.34-.45,5.64l-20.87,39.22c-2.13,4.01-2.82,8.08-3.1,12.84,10.64,1.83,32.49-27.33,37.97-37.87l13.82-26.54c2.16-4.15,12.29-4.91,15.17-1.97,3.73,3.82-.72,7.73-1.95,12.25,9.54-9.9,25.55-23.74,35.7-14.1,7.84,7.44.26,18.94-3.79,27.35l-11.97,24.79c-.38.79-.17,4.13.71,4.09l4.1-.17c8.38-6.8,15.21-14.71,21.25-23.68,7.99-25.37,37.35-56.68,61.79-42.61,4.43-1.6,10.08-3.39,14.15.77,1.35,1.38,1.98,5.52,1.04,7.62l-25.85,57.45c11.05-4.76,18.76-10.29,27.69-16.65,1.5-1.07,5.23-1.05,6.55.14,9.47,8.48-26.68,25.79-40.02,31.66l-22.49,46.36c-7.67,15.83-26.41,35.38-45.8,35.95-15.19.44-26.26-11.72-24.51-26.95,3.67-31.98,47.21-50.66,75.95-61.45l5.92-11.9-.05-.75c-9.25,8.11-19.17,14.28-28.6,9.15-3.49-1.9-6.04-6.21-7.15-10.87-9.09,12.72-26.36,29.35-38.4,19.71-11.16-8.94.05-30.61,7.37-44.09,2.22-4.09,4.57-7.63,5.04-12.36-7.76,3.44-12.35,8.5-17.41,14.05-13.22,14.49-21.37,31.75-29.63,49.28-2.36,5.01-13.15,5.97-15.65,1.84-2.11-3.94.76-8.6,1.91-12.36l-9.65,9.22c-8.18,7.81-20.51,12.38-27.67,5.71-3.07-2.86-4.19-7.43-3.9-12.57-7.86,8.27-17.48,18.84-29.59,19.6-8.31.53-14.37-5.87-13.95-14.2.36-7.08,2.85-13.96,6.34-20.45l12.11-22.56c.34-.62.4-3.45-.32-3.47-5.21-.15-14.91,9.2-20.53,15.31-11.6,12.64-19.41,26.62-27.29,42.01-2.91,3.02-11.71,5.55-15.18,3.4-4.06-2.52-.78-7.95.6-11.7-6.4,6.3-13.03,13.15-21.92,16.42-6.08,2.23-13.33,1.7-17.57-3.11-3.98-4.49-4.53-10.81-3.66-16.75l-18.21,16.52c-6.4,5.81-14.74,8.87-23.38,9.82-11.45,1.25-21.31-6-23.3-17.26l-15.35,14.48c-3.63,3.43-9.38,5.46-14.31,5.99C244.11,304.19,237.81,299.47,236.92,291.66ZM474.87,160.34c-6.49,3.08-10.95,7.97-14.75,13.34-7.23,10.24-13.16,20.8-18.67,32.05C453.44,194.41,475.31,175.45,474.87,160.34ZM624.08,246.29c3.14,2.08,7.17-.73,9.36-2.37,11.88-9.89,20.6-22.47,26.44-36.75-.39-2.16-.98-5.03-1.94-6.01-3.26-3.32-13.07,3.25-18.87,9.46C631.17,219.06,619.62,237.56,624.08,246.29ZM330.03,230.23c-5.98-3.85-23.52,16.15-26.41,27.68C320.22,254.45,337.16,234.83,330.03,230.23ZM138.19,256.78c-4.5-2.41-7.34-5.75-6.92-10.98-7.23,2.7-12.1,7.62-16.59,13.42-7.34,9.45-13.17,19.75-14.9,31.8-.49,3.38.31,8.52,3.68,9.85C115.27,305.51,137,273.61,138.19,256.78ZM607.44,320.89c8.61-12.57,15-25.64,21.43-40.47l-26.25,12.65c-7.46,4.98-14.23,10.21-20.4,16.63-7.64,9.34-11.6,22.28-3.44,27.31C587.76,342.56,600.35,331.24,607.44,320.89Z"/><path fill="currentColor" d="M489.77,412.89c-10.37,9.49-23.54,18.69-32.9,10.25-2.97-2.67-4.32-7.3-4.66-12.48-9.56,11.95-24.5,25.81-35.87,16.99-4.08-3.16-5.5-8.84-5.04-15.02l-13.32,13.92c-3.65,3.81-9.38,6.51-14.5,7.28-9.97,1.51-17.16-5.7-17.63-15.46-10.1,12.22-24.85,26.53-37.02,18.15-5.65-3.9-6.68-10.91-6.31-17.83-10.96,14.2-27.18,31.59-41.94,21.87-10.58-6.98-8.37-27.04-1.9-41.05l-9.21.9c-7.87,20.29-27.05,47.94-48.92,50.95-12.91,1.77-23.29-7.37-24.34-20.94l-19.74,20.51c-5.25,5.46-12.44,8.38-20.02,9.06-10.56.95-18.62-6.49-19.27-17.18-.52-8.6,1.51-17.17,4.77-25.36,7.47-18.75,16.62-35.54,26.59-54.29l-34.28,4.69c-2.97.41-5.67-.59-6.21-4.13-.46-3.01,1.85-10,5.56-10.48l44.22-5.68,16.53-26.93c2.03-3.31,16.01-6.04,18.65-1.59.62,1.05.52,4.19-.2,5.43l-12.09,20.65,39.6-3.85c3.58,4.09.67,13.34-4.39,13.94l-44.1,5.28-24.21,45.55c-5.32,10.02-14.12,31.38-8.85,36.02,1.13.99,4.96,1.44,6.2.59l12.57-8.65,21.41-24.58c7.65-22.16,29.76-48.66,53.35-49.65,9.59-.4,17.45,5.38,19.72,14.56,1.33,5.35.95,10.87.55,16.25,4.08-.8,10.54-1.69,13.2-5.11,7.08-9.12,13.64-17.62,23.05-24.12,11.99-8.28,28.23-12.8,36.73-.82,8.86-16.61,17.18-32.5,27.8-47.56,7.68-10.88,17.41-19.5,30.35-22.71,3.97-.98,8.35.19,10.9,2.93,14.08,15.12-34.06,59.64-51.71,72.46-7.11,11.97-12.86,25.26-18.26,38.38-2.12,5.17-3.52,11.5-3.38,16.95,1.6,1.63,5.43.56,7.39-.79,7.52-6.88,13.79-13.96,19.97-22.18,9.2-26.76,43.52-64.62,68.48-45.19,4.01-1.78,9.65-4,13.68,0,2.06,2.03,1.75,5.91.32,8.76l-20.01,40.01c-1.85,3.71-2.56,8.2-1.55,12.25,2.67.12,6.56-1.38,8.48-3.38,7.15-7.49,14.73-14.97,19.6-24.1l20.62-38.74c3.9-2.19,9.11-2.89,13.71-2.38,2.66.29,5.27,4.1,3.89,6.69l-16.12,30.35c-4.51,8.48-11.46,23.72-7.44,26.15,3.73,2.25,14.56-7.92,20.06-14.63,7.17-8.74,13.79-17.7,19.2-27.67l12.4-22.89c3.22-2.42,10.21-3.23,13.86-1.93,4.22,1.51,3.88,5.86,2.22,9.2l-45.58,92,30.76-1.47c2.71.7,2.86,6.74,1.73,8.72-1.73,3.03-4.52,4.28-8.44,4.58l-31.27,2.45c-16.57,30.37-46.45,75.27-83.12,73.73-8.31-.35-16.15-4.33-20.16-9.96-13.47-18.91,2.07-42.7,21.64-55.49-78.63,9.33-168.88,19.79-238.22,57.92-1.78.97-5.06.6-6.31-.41-5.17-4.18-.53-14.02,9.37-19.82,38.97-22.82,88.62-33.18,133.77-40.14,47.05-7.26,93.48-11.83,140.84-15.28l28.94-2.87L489.77,412.89ZM403.86,303.61c-6.45,2.95-10.22,7.7-13.94,12.89-6.71,9.37-12.41,18.87-17.67,29.55C383.91,335.47,400.54,318.08,403.86,303.61ZM386.57,415.45c1.4,1.22,5.88-.91,7.27-2.09,13.17-11.16,23.48-24.44,31.03-40,1.48-3.06,3.05-8.49-.21-10.8s-8.69.49-11.78,2.94c-13.05,10.37-22.14,24.51-27.47,40.38C384.5,408.59,384.1,413.32,386.57,415.45ZM333.5,383.08c2.07-4.09,4.08-11.17-.31-13.92-4.04-2.52-10.09,1.13-13.57,4.03-20.49,17.04-32.01,48.87-25.21,51.47C303.64,428.2,326.48,396.96,333.5,383.08ZM255.06,394.16c-2.09-2.15-3.84-5.28-3.81-7.95l.14-11.52c-22.91,5.2-45.35,54.09-32.37,60.13C230.47,440.15,251.02,409.73,255.06,394.16ZM407.04,514.88c6.61,0,12.19-2.78,17.42-5.9,8.61-6.49,16.7-13.31,22.73-22.29l18.85-28.07c-14.03,1.4-26.05,4.78-38.3,9.55-14.83,7.19-30.29,17.07-32.5,33.65C394.29,508.99,399.1,514.9,407.04,514.88Z"/><path fill="currentColor" d="M454.24,139.18c-8.05,9.41-21.41,20.14-32.16,13.68-7.38-4.43-7.14-17.57-3.01-25.21l15.23-28.18-9.54-2.22c-9.23,16.54-19.25,33.33-31.39,48.49-8.85,11.06-21.3,20.35-31.46,12.25-3.24-2.59-4.41-7.25-4.78-12.41-9.43,12.49-23.9,24.82-36.14,16.36-4.05-2.8-5.92-8.28-6.56-14.19-14.3,16.02-39.72,31.99-54.64,16.74-19.87-20.29,11.64-74.92,42.53-74.69,9.21.06,15.71,7.04,14.38,16.24-2.73,18.96-25.02,32.18-44.07,35.15-1.31,4.69-.73,10.99,4.36,13.31,10.88,4.97,34.17-14.53,40.36-25.36,7.59-13.28,14.63-25.94,27.1-35.22,11.78-8.75,24.07-13.2,35.64-4.68,3.96-1.23,9.78-4.01,13.41.89,1.91,2.57.55,6.8-.94,9.86l-16.33,33.76c-1.79,3.71-2.21,7.71-1.24,12.17,6.05-2.46,9.91-6.68,13.86-11.65,10.63-13.42,19.07-27.89,26.96-43.16-4-9.33-.45-20.11,8.24-24.53,2.64-1.34,6.95-.66,8.9,1.12,2.14,1.95,2.41,5.92,1.43,8.94l-2.42,7.47c8.9,3.07,15.33-3.37,20.67,1.91,1.74,1.73,3.69,6.41,2.24,9.06l-7.95,14.41c-4.3,7.79-9.56,16.26-12.49,24.15-.45,1.2-.45,5.24.64,5.15l4.85-.39c11.63-9.35,20.91-20.58,28.46-33.47l13.7-27.58c2.27-2.16,7.93-3.03,11.24-2.79s5.64,3.8,4.5,6.45l-3.34,7.86c10-11.12,26.82-23.63,36.09-13.11,3.94,4.46,3.4,11.76.67,16.95l-12.77,24.3c-2.14,4.07-3.91,9.07-4,13.76,7.5,3.73,21.7-15.47,28.89-25,1.09-1.45,4.68-1.89,6.12-1.19,1.97.97,2.97,4.75,1.65,6.94-8.83,14.66-24.3,34.89-40.6,35.8-8.59.48-14.77-5.97-14.41-14.55.35-8.27,4.01-16.02,7.65-23.49l10.17-20.9c-9.38,3.48-14.91,10.37-20.83,17.31-9.77,11.45-16.15,24.47-23.23,37.9-2.56,4.86-11.14,7.38-15.95,4.69C451.5,146.92,453.27,142.27,454.24,139.18ZM334.68,148.32c13.32-4.5,25.8-23.99,32.94-36.25,2.04-3.51,4.86-9.04.82-12.57-2.34-2.05-8,.74-10.6,2.89-11.6,9.59-19.78,22.16-24.46,36.48C332.44,141.73,332.4,146.18,334.68,148.32ZM301.09,103.96c-1.02-1.58-5.71.03-7.32,1.27-8.32,6.43-14.21,14.59-17.7,24.59C288.32,125.98,304.74,114.18,301.09,103.96Z"/><path fill="currentColor" d="M173.23,173.03c-14.36,16.37-30.12,30.69-51.1,37.64-9.49,2.78-18.79,3.63-28.11.77-12.82-3.94-19.45-16.94-14.54-29.51,3.62-9.37,10.19-16.7,18.59-22.41,20.59-13.98,45.69-16.15,69.29-7.69l28.17-42.92c-13.95.16-26.93-2.47-38.52-9.48-6.88-4.45-12.22-10.35-13.62-18.44.26-3.18,1.6-6.23,4.33-7.41,2.29-1,5.67.19,7.51,2.43,11.89,14.38,31.46,19.04,49.9,16.79C222.87,63.02,254.89,2.69,289.41.07c11.42-.87,20.48,6.68,22.03,17.97,1.13,8.2-1,16.02-4.19,23.72-16.73,34.63-51,55.04-88.11,64.13-10.7,17.77-21.53,34.86-34.1,52.1l38.76,17.51c14.21,5.4,27.95,10.21,42.98,11.9,10.52.85,20.72.27,29.76-5.4,1.27-.79,3.96-1.51,5.16-1.06,3.79,1.4,3.73,12.28-8.11,18.29-22.8,11.59-55.39,3-78.93-7.58L173.23,173.03ZM283.84,50.42c8.96-10.86,17.7-30.65,9.22-34.03-4.62-1.84-9.2.65-13.19,3-7.31,6.24-13.54,12.9-19.3,20.77-11.19,15.29-21.07,30.99-30.48,47.46C251.62,80.2,269.71,67.54,283.84,50.42ZM107.92,197.66c19.75-1.11,34.69-16.68,47.44-30.58-17.08-6.4-36.11-4.82-50.48,6.16-5.23,4-9.71,9.85-9.08,16.42C96.34,195.26,102.3,197.61,107.92,197.66Z"/><path fill="currentColor" d="M522.94,195.91c-4.87.42-8.26-2.92-8.24-7.11.03-7.42,5.23-14.07,12.57-15.31,5.11-.87,9.33,2.32,9.3,7.48C536.53,188.5,531.02,195.21,522.94,195.91Z"/><circle fill="#ffb2d5" cx="562.03" cy="410.03" r="24.06"/></svg></h1>
 </div>
 <img id="sd" src="ui/halfpipe.png" alt="SketchDeck">
+<div id="scrim"></div>
+<button id="drawer-tab" aria-controls="drawer" aria-expanded="false">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 6.5h2v2H4zm4 0h12v2H8zM4 11h2v2H4zm4 0h12v2H8zm-4 4.5h2v2H4zm4 0h12v2H8z"/></svg>
+  <span class="lbl">All videos</span><span class="n" id="tab-n"></span>
+</button>
+<aside id="drawer" aria-label="All videos" aria-hidden="true">
+  <header><h2>All videos</h2><span class="total" id="total"></span></header>
+  <div class="list" id="list"></div>
+</aside>
 <button id="fs" aria-label="Full screen" title="Full screen"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="m13 .5h-10a2.5009 2.5009 0 0 0 -2.5 2.5v10a2.5009 2.5009 0 0 0 2.5 2.5h10a2.5009 2.5009 0 0 0 2.5-2.5v-10a2.5009 2.5009 0 0 0 -2.5-2.5zm-5.65 8.85-2.15 2.15h.8a.5.5 0 0 1 0 1h-2a.4058.4058 0 0 1 -.19-.04h-.01a.4738.4738 0 0 1 -.26-.26v-.01a.4058.4058 0 0 1 -.04-.19v-2a.5.5 0 0 1 1 0v.8l2.15-2.15a.495.495 0 0 1 .7.7zm5.15-3.35a.5.5 0 0 1 -1 0v-.8l-2.15 2.15a.4833.4833 0 0 1 -.7 0 .4833.4833 0 0 1 0-.7l2.15-2.15h-.8a.5.5 0 0 1 0-1h2a.4058.4058 0 0 1 .19.04h.01a.4738.4738 0 0 1 .26.26v.01a.4058.4058 0 0 1 .04.19z"/></svg></button>
 
 <script src="videos.js"></script>
@@ -311,6 +356,7 @@
     idx = (idx + step + ALL.length) % ALL.length; POS[bucket] = idx;
     yt.classList.remove('on'); setNoise(true);
     player.loadVideoById(ALL[idx].id);
+    if (typeof renderList === 'function') renderList();
   }
   function setMuted(m) {
     muted = m;
@@ -352,7 +398,7 @@
         onStateChange: e => {
           if (e.data === YT.PlayerState.PLAYING) { setDown(bPlay, false); setTimeout(() => { yt.classList.add('on'); setNoise(false); thumb.classList.remove('on'); cue.classList.remove('on'); }, 150); }
           if (e.data === YT.PlayerState.PAUSED && !waiting) setDown(bPlay, true);
-          if (e.data === YT.PlayerState.ENDED) tune(1);
+          if (e.data === YT.PlayerState.ENDED) { markSeen(ALL[idx].id); tune(1); }
         },
         onError: () => tune(1) // embedding disabled or removed: skip it
       }
@@ -375,12 +421,71 @@
   bPlay.addEventListener('click', () => { if (Date.now() - wokeAt > 800) togglePause(); });
   bMute.addEventListener('click', () => { if (Date.now() - wokeAt > 800) setMuted(!muted); });
 
+  /* ---------- Seen videos (remembered in this browser) ---------- */
+  const SEEN_KEY = 'learn-seen';
+  let seen = new Set();
+  try { seen = new Set(JSON.parse(localStorage.getItem(SEEN_KEY) || '[]')); } catch (e) {}
+  function markSeen(id) {
+    if (seen.has(id)) return;
+    seen.add(id);
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify([...seen])); } catch (e) {}
+    renderList();
+  }
+  // a video counts as seen after 60s of it, or half of it if it's shorter, or when it ends
+  setInterval(() => {
+    if (!ready || !player.getCurrentTime) return;
+    const id = ALL[idx] && ALL[idx].id, t = player.getCurrentTime(), d = player.getDuration();
+    if (id && d > 0 && t >= Math.min(60, d / 2)) markSeen(id);
+  }, 2000);
+
+  /* ---------- Drawer: every video, grouped by length ---------- */
+  const BUCKETS = [['Under 5 min', '1–5 mins'], ['5–10 min', '5–10 mins'], ['10–15 min', '10–15 mins']];
+  const listEl = document.getElementById('list'), tab = document.getElementById('drawer-tab'), drawer = document.getElementById('drawer');
+  const CHECK = '<svg viewBox="0 0 24 24"><path fill="none" stroke="#2a1f17" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const esc = t => t.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const VIDS = window.VIDEOS || [];
+  function renderList() {
+    const nowId = ALL[idx] && ALL[idx].id;
+    listEl.innerHTML = BUCKETS.map(([b, label]) => {
+      const vs = VIDS.filter(v => v.bucket === b);
+      if (!vs.length) return '';
+      const n = vs.filter(v => seen.has(v.id)).length;
+      return `<h3>${label}<span>${n} / ${vs.length} seen</span></h3><ul>` + vs.map(v =>
+        `<li class="${seen.has(v.id) ? 'seen' : ''} ${v.id === nowId ? 'now' : ''}"><button data-id="${v.id}">
+          <img class="th" loading="lazy" src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg" alt="">
+          <span><span class="t">${esc(v.title)}</span><span class="m" style="display:block">${esc(v.channel)} · ${v.duration}</span></span>
+          <span class="ck" aria-label="${seen.has(v.id) ? 'Seen' : 'Not seen yet'}">${CHECK}</span></button></li>`).join('') + '</ul>';
+    }).join('');
+    const total = VIDS.filter(v => seen.has(v.id)).length;
+    document.getElementById('total').textContent = `${total} of ${VIDS.length} seen`;
+    document.getElementById('tab-n').textContent = `${total}/${VIDS.length}`;
+  }
+  function setDrawer(open) {
+    document.body.classList.toggle('drawer-open', open);
+    tab.setAttribute('aria-expanded', open); drawer.setAttribute('aria-hidden', !open);
+    if (open) { renderList(); const now = listEl.querySelector('li.now'); if (now) now.scrollIntoView({ block: 'center' }); }
+  }
+  tab.addEventListener('click', () => setDrawer(!document.body.classList.contains('drawer-open')));
+  document.getElementById('scrim').addEventListener('click', () => setDrawer(false));
+  addEventListener('keydown', e => { if (e.key === 'Escape') setDrawer(false); });
+  // pick a video from the list: switch the duration picker to its length and play it
+  listEl.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-id]'); if (!btn) return;
+    const v = VIDS.find(x => x.id === btn.dataset.id); if (!v) return;
+    const i = BUCKETS.findIndex(([b]) => b === v.bucket);
+    setBucketUI(i); POS[bucket] = idx; bucket = v.bucket; ALL = LISTS[bucket];
+    idx = ALL.findIndex(x => x.id === v.id);
+    if (ready) { yt.classList.remove('on'); setNoise(true); player.loadVideoById(v.id); if (muted) setMuted(false); }
+    renderList();
+  });
+  renderList();
+
   // duration picker
   const dur = document.getElementById('dur'), opts = [...dur.querySelectorAll('.opt')];
+  function setBucketUI(i) { opts.forEach((o, j) => o.setAttribute('aria-checked', j === i)); dur.dataset.i = i; }
   function pick(i) {
     if (opts[i].getAttribute('aria-checked') === 'true') return;
-    opts.forEach((o, j) => o.setAttribute('aria-checked', j === i));
-    dur.dataset.i = i;
+    setBucketUI(i);
     POS[bucket] = idx; bucket = opts[i].dataset.bucket; ALL = LISTS[bucket] || [];
     if (!ready) { idx = 0; return; }
     idx = (POS[bucket] ?? -1); tune(1);
