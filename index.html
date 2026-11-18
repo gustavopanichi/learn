@@ -12,7 +12,7 @@
   html,body{margin:0;height:100%;background:#2a1f17;overflow:hidden}
 
   /* moving film grain over everything */
-  #grain{position:fixed;inset:-50%;z-index:20;pointer-events:none;background:url(ui/grain.png);opacity:.09;mix-blend-mode:overlay;animation:grain .9s steps(6) infinite}
+  #grain{position:fixed;inset:-50%;z-index:20;pointer-events:none;background:url(ui/grain.png);opacity:.2;mix-blend-mode:overlay;animation:grain .9s steps(6) infinite}
   @keyframes grain{0%{transform:translate(0,0)}17%{transform:translate(-6%,4%)}33%{transform:translate(5%,-7%)}50%{transform:translate(-3%,8%)}67%{transform:translate(8%,2%)}83%{transform:translate(-8%,-4%)}100%{transform:translate(0,0)}}
 
   /* fullscreen button, fixed to the window's top-right corner */
@@ -36,10 +36,11 @@
   .bg.show{opacity:1}
 
   /* ---------- TV (still image over the background) ----------
-     tv.webp is 1279×678; its screen is a transparent hole at 207–908 × 37–509. */
-  #tv{position:absolute;left:316px;top:247px;width:1279px;height:678px;z-index:1}
+     tv.webp is 1379×647, laid out in its own pixels and scaled into the scene;
+     its screen is a transparent 16:9 hole at 232–992 × 34–473. */
+  #tv{position:absolute;left:308px;top:316px;width:1379px;height:647px;z-index:1;transform:scale(.9243);transform-origin:0 0}
   #tv .png{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;user-select:none;z-index:2}
-  #screen{position:absolute;left:205px;top:35px;width:706px;height:477px;overflow:hidden;background:#0b0b0a;z-index:1;--zoom:1}
+  #screen{position:absolute;left:230px;top:32px;width:765px;height:444px;overflow:hidden;background:#0b0b0a;z-index:1;--zoom:1}
   #yt{position:absolute;top:50%;left:50%;height:calc(100% * var(--zoom));aspect-ratio:16/9;transform:translate(-50%,-50%);pointer-events:none;opacity:0;transition:opacity .4s}
   #yt.on{opacity:1}
   #yt iframe{width:100%;height:100%;border:0;display:block}
@@ -47,13 +48,13 @@
   #static.on{opacity:.5}
   #screen::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 50px 8px rgba(0,0,0,.45)}
   /* clicks on the screen (the player never gets the mouse, so YouTube never shows its UI) */
-  #tap{position:absolute;left:207px;top:37px;width:702px;height:473px;z-index:3;border:0;padding:0;background:none;cursor:pointer}
-  #osd{position:absolute;left:240px;top:62px;z-index:3;width:44px;height:44px;color:#9ef59a;filter:drop-shadow(0 0 6px rgba(158,245,154,.8));opacity:0;transition:opacity .3s;pointer-events:none}
+  #tap{position:absolute;left:232px;top:34px;width:761px;height:440px;z-index:3;border:0;padding:0;background:none;cursor:pointer}
+  #osd{position:absolute;left:262px;top:58px;z-index:3;width:44px;height:44px;color:#9ef59a;filter:drop-shadow(0 0 6px rgba(158,245,154,.8));opacity:0;transition:opacity .3s;pointer-events:none}
   #osd.on{opacity:.9;animation:blink 1.6s steps(1) infinite}
   @keyframes blink{50%{opacity:.25}}
   /* big "next" button, with its pressed artwork shown briefly on press */
-  #next{position:absolute;left:952px;top:384px;width:164px;height:84px;z-index:3;border:0;padding:0;background:none;cursor:pointer;border-radius:42px;-webkit-tap-highlight-color:transparent}
-  #pressed{position:absolute;left:951.5px;top:365px;width:172.8px;height:122.7px;z-index:2;pointer-events:none;opacity:0}
+  #next{position:absolute;left:1050px;top:376px;width:151px;height:76px;z-index:3;border:0;padding:0;background:none;cursor:pointer;border-radius:38px;-webkit-tap-highlight-color:transparent}
+  #pressed{position:absolute;left:1051.1px;top:358.7px;width:156.8px;height:111.3px;z-index:2;pointer-events:none;opacity:0}
   #pressed.on{opacity:1}
   #tap:focus,#next:focus{outline:none}
   #next:focus-visible{box-shadow:0 0 0 4px rgba(224,104,42,.6)}
@@ -168,7 +169,7 @@
 
   /* ---------- Fit: keep the TV and all toggles in view ---------- */
   const F = { x0: 170, y0: 85, x1: 1825, y1: 1035 };   // focus area (title, TV, toggles, duration picker), source pixels
-  const TVC = { x: 965, y: 561 };                       // TV centre
+  const TVC = { x: 966, y: 596 };                       // TV centre
   const fw = F.x1 - F.x0, fh = F.y1 - F.y0, fcx = (F.x0 + F.x1) / 2, fcy = (F.y0 + F.y1) / 2;
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
   function layout() {
