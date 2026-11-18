@@ -297,25 +297,26 @@
   }
   addEventListener('resize', layout); layout();
 
-  /* ---------- Click sound for the toggles (synthesised, no audio file) ---------- */
+  /* ---------- Click sound for the toggles: a deep, warm wooden knock (synthesised, no audio file) ---------- */
   let actx = null;
   function clickSound(on) {
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
       if (actx.state === 'suspended') actx.resume();
-      const t = actx.currentTime, out = actx.createGain();
-      out.gain.value = 0.55; out.connect(actx.destination);
-      // short filtered noise burst: the "tick" of the switch
+      const t = actx.currentTime + 0.01, out = actx.createGain();
+      out.gain.value = 0.7; out.connect(actx.destination);
+      const env = (a, peak, dec) => { const g = actx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + dec); return g; };
+      const filt = (type, f, q) => { const x = actx.createBiquadFilter(); x.type = type; x.frequency.value = f; x.Q.value = q; return x; };
+      const tone = (f0, f1, dur, peak, type) => { const o = actx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+        const g = env(0.004, peak, dur); o.connect(g); o.start(t); o.stop(t + dur + 0.05); return g; };
+      // knock: a short burst of filtered noise
       const len = Math.floor(actx.sampleRate * 0.03), buf = actx.createBuffer(1, len, actx.sampleRate), d = buf.getChannelData(0);
       for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 6);
       const n = actx.createBufferSource(); n.buffer = buf;
-      const bp = actx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = on ? 3200 : 2600; bp.Q.value = 1.2;
-      n.connect(bp).connect(out); n.start(t);
-      // tiny low thump: the knob landing
-      const o = actx.createOscillator(), g = actx.createGain();
-      o.type = 'sine'; o.frequency.setValueAtTime(on ? 180 : 150, t + 0.012); o.frequency.exponentialRampToValueAtTime(70, t + 0.06);
-      g.gain.setValueAtTime(0.0001, t + 0.01); g.gain.exponentialRampToValueAtTime(0.5, t + 0.014); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
-      o.connect(g).connect(out); o.start(t + 0.01); o.stop(t + 0.09);
+      n.connect(filt('bandpass', on ? 900 : 760, 1.4)).connect(env(0.002, 0.6, 0.04)).connect(out); n.start(t);
+      // wood body + low thump
+      tone(on ? 230 : 200, 150, 0.09, 0.55, 'triangle').connect(filt('lowpass', 900, 0.7)).connect(out);
+      tone(110, 70, 0.1, 0.4, 'sine').connect(out);
     } catch (e) {}
   }
 

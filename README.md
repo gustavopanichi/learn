@@ -15,7 +15,7 @@ To test locally instead: run `npx serve` in this folder and open the address it 
 - Keyboard: → next, ← previous, Space pause, M mute.
 - Three toggles swap the background loop: cat/dog (by the bed), coffee/tea (by the mug), day/night (by the window). The starting loop loads first; the other 7 download in the background, one at a time. Small screens use the 960×540 copies in `bg/sm/`.
 - Microwave-style display on the TV: time left on the current video (blinks while paused).
-- Toggles make a small click sound (generated in the browser, no audio file).
+- Toggles make a deep wooden knock sound (generated in the browser, no audio file).
 - TV buttons, left to right: play/pause (shows pause while playing; stays down and shows play while paused), next (down while pressed), mute (stays down while muted).
 - "How long do you have?" picker (1–5 / 5–10 / 10–15 min) chooses which videos play; changing it switches straight to a video of that length.
 - 9-dot button (top right) opens a drawer listing every video by length, with a checkmark on the ones already seen (remembered in the visitor's browser; a video counts as seen after 60s, or half of it if shorter). Clicking one plays it; the YouTube icon opens it on YouTube. The drawer also has the Full screen button.
