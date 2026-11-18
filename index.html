@@ -49,6 +49,14 @@
   #yt iframe{width:100%;height:100%;border:0;display:block}
   #static{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;opacity:0;transition:opacity .25s}
   #static.on{opacity:.5}
+  /* while waiting for the visitor's first click (browsers can refuse sound until then):
+     the video's own thumbnail instead of static, with a soft pulsing play mark */
+  #thumb{position:absolute;left:50%;top:50%;height:133.4%;transform:translate(-50%,-50%);opacity:0;transition:opacity .4s;pointer-events:none}
+  #thumb.on{opacity:.85}
+  #cue{position:absolute;left:50%;top:50%;width:92px;height:92px;margin:-46px 0 0 -46px;opacity:0;pointer-events:none;color:#fff;
+       filter:drop-shadow(0 0 14px rgba(0,0,0,.5));transition:opacity .4s}
+  #cue.on{opacity:.9;animation:pulse 1.8s ease-in-out infinite}
+  @keyframes pulse{50%{transform:scale(1.1);opacity:.6}}
   #screen::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 50px 8px rgba(0,0,0,.45)}
   /* clicks on the screen (the player never gets the mouse, so YouTube never shows its UI) */
   #tap{position:absolute;left:232px;top:34px;width:761px;height:440px;z-index:3;border:0;padding:0;background:none;cursor:pointer}
@@ -145,6 +153,8 @@
       <div id="screen">
         <div id="yt"><div id="ytp"></div></div>
         <canvas id="static" width="248" height="162"></canvas>
+        <img id="thumb" alt="">
+        <svg id="cue" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
       </div>
       <img class="png" src="ui/tv.webp" alt="">
       <button id="tap" aria-label="Pause or play"></button>
@@ -219,44 +229,47 @@
         <span class="icon a c-${a}">${use(a)}</span><span class="icon b c-${b}">${use(b)}</span></span>`;
   });
 
-  /* ---------- Backgrounds: preload every loop, then crossfade between them ---------- */
+  /* ---------- Backgrounds ----------
+     The starting loop loads first and the site starts as soon as it's ready; the other 7 then download
+     one at a time in the background. Only the visible loop (and the one fading in) is kept as a video
+     element, so memory stays low. Small screens get 960×540 loops instead of 1920×1080. */
   const state = { pet: 'cat', drink: 'coffee', time: 'day' };
   const FILES = ['cat-coffee-day', 'cat-coffee-night', 'cat-tea-day', 'cat-tea-night', 'dog-coffee-day', 'dog-coffee-night', 'dog-tea-day', 'dog-tea-night'];
   const FALLBACK = {}; // e.g. { 'cat-tea-night': 'cat-coffee-night' } if a loop is ever missing
-  const vids = {};
+  const sceneW = parseFloat(scene.style.transform.match(/scale\(([\d.]+)\)/)[1]) * W * (devicePixelRatio || 1);
+  const DIR = sceneW < 1400 ? 'bg/sm/' : 'bg/';
+  const blobs = {};                                   // name -> Promise<object URL>
+  const fetchLoop = name => blobs[name] || (blobs[name] = fetch(DIR + name + '.mp4').then(r => r.blob()).then(b => URL.createObjectURL(b)));
   let active = null, z = 1, switching = Promise.resolve();
 
-  const sceneName = () => { const n = `${state.pet}-${state.drink}-${state.time}`; return vids[n] ? n : FALLBACK[n]; };
-
-  async function load(name) {
-    const r = await fetch(`bg/${name}.mp4`);
-    const url = URL.createObjectURL(await r.blob());
-    const v = document.createElement('video');
-    Object.assign(v, { src: url, muted: true, loop: true, playsInline: true, preload: 'auto' });
-    v.muted = true; v.defaultMuted = true; v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
-    v.className = 'bg';
-    document.getElementById('bgs').appendChild(v);
-    await new Promise(res => v.readyState >= 3 ? res() : v.addEventListener('canplaythrough', res, { once: true }));
-    vids[name] = v;
-  }
-
+  const sceneName = () => { const n = `${state.pet}-${state.drink}-${state.time}`; return FILES.includes(n) ? n : FALLBACK[n]; };
+  const once = (el, ev) => new Promise(res => el.addEventListener(ev, res, { once: true }));
   const frameReady = v => new Promise(res => v.requestVideoFrameCallback ? v.requestVideoFrameCallback(() => res()) : setTimeout(res, 60));
 
   async function show(name) {
-    const next = vids[name];
-    if (!next || next === active) return;
-    if (active) next.currentTime = (active.currentTime + 0.04) % (active.duration || 5.04);
-    next.style.zIndex = ++z;
-    await next.play().catch(() => {});
-    await frameReady(next);
-    next.classList.add('show');
-    const prev = active; active = next;
-    if (prev) setTimeout(() => { if (prev !== active) { prev.classList.remove('show'); prev.pause(); } }, 850);
+    if (!name || (active && active.dataset.name === name)) return;
+    const url = await fetchLoop(name);
+    const v = document.createElement('video');
+    v.muted = true; v.defaultMuted = true; v.loop = true; v.playsInline = true;
+    v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
+    v.className = 'bg'; v.dataset.name = name; v.style.zIndex = ++z;
+    v.src = url;
+    document.getElementById('bgs').appendChild(v);
+    if (v.readyState < 2) await once(v, 'loadeddata');
+    if (active) {                                      // join the loop at the same moment as the one on screen
+      v.currentTime = (active.currentTime + 0.05) % (active.duration || 5.04);
+      await once(v, 'seeked');
+    }
+    await v.play().catch(() => {});
+    await frameReady(v);
+    v.classList.add('show');
+    const prev = active; active = v;
+    if (prev) setTimeout(() => { prev.pause(); prev.remove(); }, 850);
   }
 
-  Promise.all(FILES.map(load)).then(async () => {
-    await show(sceneName());
+  show(sceneName()).then(() => {
     stage.classList.remove('loading');
+    FILES.reduce((p, n) => p.then(() => fetchLoop(n)).catch(() => {}), Promise.resolve()); // the rest, one by one
   });
 
   document.querySelectorAll('.tg').forEach(t => t.addEventListener('click', () => {
@@ -278,7 +291,7 @@
   let bucket = 'Under 5 min';
   let ALL = LISTS[bucket] || [];
   let idx = 0, player = null, ready = false, muted = false, wokeAt = 0, waiting = false;
-  const yt = document.getElementById('yt');
+  const yt = document.getElementById('yt'), thumb = document.getElementById('thumb'), cue = document.getElementById('cue');
   const bNext = document.getElementById('b-next'), bPlay = document.getElementById('b-play'), bMute = document.getElementById('b-mute');
   const setDown = (b, on) => { b.classList.toggle('down', on); if (b !== bNext) b.setAttribute('aria-pressed', on); };
 
@@ -325,8 +338,10 @@
             const st = e.target.getPlayerState();
             if (st !== YT.PlayerState.PLAYING && st !== YT.PlayerState.BUFFERING) {
               waiting = true; e.target.pauseVideo();
+              thumb.src = `https://i.ytimg.com/vi/${ALL[idx].id}/hqdefault.jpg`;
+              thumb.onload = () => { setNoise(false); thumb.classList.add('on'); cue.classList.add('on'); };
               const wake = () => {
-                wokeAt = Date.now(); waiting = false;
+                wokeAt = Date.now(); waiting = false; cue.classList.remove('on');
                 setMuted(false);                       // unmutes and plays
                 ['pointerdown', 'keydown', 'touchstart'].forEach(t => removeEventListener(t, wake, true));
               };
@@ -335,7 +350,7 @@
           }, 1500);
         },
         onStateChange: e => {
-          if (e.data === YT.PlayerState.PLAYING) { setDown(bPlay, false); setTimeout(() => { yt.classList.add('on'); setNoise(false); }, 150); }
+          if (e.data === YT.PlayerState.PLAYING) { setDown(bPlay, false); setTimeout(() => { yt.classList.add('on'); setNoise(false); thumb.classList.remove('on'); cue.classList.remove('on'); }, 150); }
           if (e.data === YT.PlayerState.PAUSED && !waiting) setDown(bPlay, true);
           if (e.data === YT.PlayerState.ENDED) tune(1);
         },
