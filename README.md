@@ -19,6 +19,7 @@ To test locally instead: run `npx serve` in this folder and open the address it 
 - TV buttons, left to right: play/pause (shows pause while playing; stays down and shows play while paused), next (down while pressed), mute (stays down while muted).
 - "How long do you have?" picker (1–5 / 5–10 / 10–15 min) chooses which videos play; changing it switches straight to a video of that length.
 - 9-dot button (top right) opens a drawer listing every video by length, with a checkmark on the ones already seen (remembered in the visitor's browser; a video counts as seen after 60s, or half of it if shorter). Clicking one plays it; the YouTube icon opens it on YouTube. The drawer also has the Full screen button.
+- Phones fill the whole screen (no side bands), keeping the TV, toggles and duration picker in view; on short screens the logo moves to the top-left corner. On phones the first video starts from a tap on the screen (iPhones require it).
 - Phones only run in landscape: held upright, they show a "Turn your phone sideways" screen (and pause the video).
 - Font: Instrument Serif, self-hosted in `fonts/` (SIL Open Font License).
 - When a video ends, the next one starts. Videos that can't be embedded are skipped.

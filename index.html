@@ -273,14 +273,17 @@
   const TVC = { x: 983, y: 570 };                       // TV centre
   const fw = F.x1 - F.x0, fh = F.y1 - F.y0, fcx = (F.x0 + F.x1) / 2, fcy = (F.y0 + F.y1) / 2;
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  // phones (touch screens): always full bleed, keeping at least the TV, the toggles and the duration picker in view
+  const FM = { x0: 150, y0: 250, x1: 1825, y1: 1030 };
+  const isPhone = () => matchMedia('(pointer:coarse)').matches && Math.min(innerWidth, innerHeight) < 600;
   function layout() {
-    const vw = innerWidth, vh = innerHeight, m = 12;
+    const vw = innerWidth, vh = innerHeight, phone = isPhone(), A = phone ? FM : F, m = phone ? 6 : 12;
     let s = Math.max(vw / W, vh / H), cover = true;
-    if (fw * s > vw - 2 * m || fh * s > vh - 2 * m) { s = Math.min((vw - 2 * m) / fw, (vh - 2 * m) / fh); cover = false; }
+    if (!phone && (fw * s > vw - 2 * m || fh * s > vh - 2 * m)) { s = Math.min((vw - 2 * m) / fw, (vh - 2 * m) / fh); cover = false; }
     let ox, oy;
     if (cover) {
       ox = vw / 2 - TVC.x * s; oy = vh / 2 - TVC.y * s;
-      ox = clamp(ox, vw - m - F.x1 * s, m - F.x0 * s); oy = clamp(oy, vh - m - F.y1 * s, m - F.y0 * s);
+      ox = clamp(ox, vw - m - A.x1 * s, m - A.x0 * s); oy = clamp(oy, vh - m - A.y1 * s, m - A.y0 * s);
       ox = clamp(ox, vw - W * s, 0); oy = clamp(oy, vh - H * s, 0);
     } else { ox = vw / 2 - fcx * s; oy = vh / 2 - fcy * s; }
     scene.style.transform = `translate(${ox}px,${oy}px) scale(${s})`;
@@ -292,6 +295,12 @@
     let h = Math.min(LH, Math.max(70, LH * s));                 // readable on small screens, never bigger than designed
     h = Math.max(36, Math.min(h, tvTop - 12 - 16));              // fits between the window top and the TV
     const top = Math.max(16, Math.min(oy + 70 * s, tvTop - 12 - h));
+    // short phone screens: no room above the TV, so the logo moves to the top-left corner
+    if (phone && tvTop - 12 - 16 < 56) {
+      const ch = 52, cw = ch * LW / LH;
+      Object.assign(title.style, { top: '12px', height: ch + 'px', width: cw + 'px', left: '14px' });
+      return;
+    }
     const w = h * LW / LH;
     Object.assign(title.style, { top: top + 'px', height: h + 'px', width: w + 'px', left: (ox + 960 * s - w / 2) + 'px' });
   }
@@ -358,7 +367,8 @@
     v.className = 'bg'; v.dataset.name = name; v.style.zIndex = ++z;
     v.src = url;
     document.getElementById('bgs').appendChild(v);
-    if (v.readyState < 2) await once(v, 'loadeddata');
+    v.autoplay = true; v.play().catch(() => {});           // iOS only loads video data once play() is called
+    if (v.readyState < 2) await Promise.race([once(v, 'loadeddata'), once(v, 'playing'), new Promise(r => setTimeout(r, 3000))]);
     if (active) {                                      // join the loop at the same moment as the one on screen
       v.currentTime = (active.currentTime + 0.05) % (active.duration || 5.04);
       await once(v, 'seeked');
@@ -370,6 +380,7 @@
     if (prev) setTimeout(() => { prev.pause(); prev.remove(); }, 850);
   }
 
+  setTimeout(() => stage.classList.remove('loading'), 6000);   // never keep the controls hidden for long
   show(sceneName()).then(() => {
     stage.classList.remove('loading');
     FILES.reduce((p, n) => p.then(() => fetchLoop(n)).catch(() => {}), Promise.resolve()); // the rest, one by one
@@ -441,6 +452,11 @@
           // at the first click, tap or key press anywhere on the page.
           setTimeout(() => {
             const st = e.target.getPlayerState();
+            if (st !== YT.PlayerState.PLAYING && isPhone()) {
+              // phones (iOS especially) only start a video from a tap on the video itself
+              yt.style.pointerEvents = 'auto'; document.getElementById('tap').style.display = 'none';
+              yt.classList.add('on'); setNoise(false); return;
+            }
             if (st !== YT.PlayerState.PLAYING && st !== YT.PlayerState.BUFFERING) {
               waiting = true; e.target.pauseVideo();
               thumb.src = `https://i.ytimg.com/vi/${ALL[idx].id}/hqdefault.jpg`;
@@ -455,7 +471,7 @@
           }, 1500);
         },
         onStateChange: e => {
-          if (e.data === YT.PlayerState.PLAYING) { setDown(bPlay, false); setTimeout(() => { yt.classList.add('on'); setNoise(false); thumb.classList.remove('on'); cue.classList.remove('on'); }, 150); }
+          if (e.data === YT.PlayerState.PLAYING) { yt.style.pointerEvents = ''; document.getElementById('tap').style.display = ''; setDown(bPlay, false); setTimeout(() => { yt.classList.add('on'); setNoise(false); thumb.classList.remove('on'); cue.classList.remove('on'); }, 150); }
           if (e.data === YT.PlayerState.PAUSED && !waiting && !pausedForRotate) setDown(bPlay, true);
           if (e.data === YT.PlayerState.ENDED) { markSeen(ALL[idx].id); tune(1); }
         },
