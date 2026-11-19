@@ -283,7 +283,7 @@
 <script>
 (() => {
   const W = 1920, H = 1080;
-  const stage = document.getElementById('stage'), scene = document.getElementById('scene'), title = document.getElementById('title');
+  const stage = document.getElementById('stage'), scene = document.getElementById('scene'), title = document.getElementById('title'), subEl = document.getElementById('sub'), durEl = document.getElementById('dur');
 
   /* ---------- Fit: keep the TV and all toggles in view ---------- */
   const F = { x0: 150, y0: 120, x1: 1825, y1: 1045 };  // focus area (TV, toggles, duration picker), source pixels
@@ -306,6 +306,12 @@
     scene.style.transform = `translate(${ox}px,${oy}px) scale(${s})`;
     stage.classList.toggle('fit', !cover);
 
+    // "How long do you have?" and the duration picker sit on the centre of the window (not the scene,
+    // which is shifted to keep the TV in view)
+    const cx = (vw / 2 - ox) / s;
+    subEl.style.left = (cx - 960) + 'px';
+    durEl.style.left = (cx - 1054 * 0.2072 / 2) + 'px';
+
     // logo: 207×158 at scene scale, centred over the scene, never above the window's top edge,
     // and shrunk if needed so it never runs into the TV
     const LW = 207, LH = 158, tvTop = oy + 268 * s;
@@ -319,7 +325,7 @@
       return;
     }
     const w = h * LW / LH;
-    Object.assign(title.style, { top: top + 'px', height: h + 'px', width: w + 'px', left: (ox + 960 * s - w / 2) + 'px' });
+    Object.assign(title.style, { top: top + 'px', height: h + 'px', width: w + 'px', left: (vw / 2 - w / 2) + 'px' });
   }
   addEventListener('resize', layout); layout();
 
