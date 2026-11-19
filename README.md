@@ -14,14 +14,14 @@ To test locally instead: run `npx serve` in this folder and open the address it 
 - Videos always start with sound, never muted. If the browser won't allow sound before the visitor has interacted with the page, the TV shows the video's thumbnail with a pulsing play mark and starts (with sound) at the first click, tap or key press anywhere. Clicking the TV screen also pauses/plays.
 - SketchDeck halfpipe in the top-left corner.
 - Keyboard: → new video, ← previous, Space pause, M mute.
-- The site starts on dog + coffee + night (`state` in `index.html`). Three toggles swap the background loop: cat/dog, coffee/tea and day/night, side by side under the TV. The starting loop loads first; the other 7 download in the background, one at a time. Small screens use the 960×540 copies in `bg/sm/`.
+- The site starts on dog + coffee + night (`state` in `index.html`). Three toggles swap the background loop: cat/dog (by the bed), coffee/tea (by the mug), day/night (by the window). The starting loop loads first; the other 7 download in the background, one at a time. Small screens use the 960×540 copies in `bg/sm/`.
 - Microwave-style display on the TV: time left on the current video (blinks while paused).
 - Toggles make a deep wooden knock sound (generated in the browser, no audio file).
-- The background loops carry a very soft animated film grain; the TV picture has subtle scan lines and a slow rolling band (both off with reduced motion).
+- The background loops carry a very soft animated film grain (still with reduced motion).
 - TV buttons, left to right: play/pause (shows pause while playing; stays down and shows play while paused), new video / refresh (down while pressed), mute (stays down while muted).
 - "How long do you have?" picker (1–5 / 5–10 / 10–15 min) chooses which videos play; changing it switches straight to a video of that length.
 - 9-dot button (top right) opens a drawer listing every video by length, with a checkmark on the ones already seen (remembered in the visitor's browser; a video counts as seen after 60s, or half of it if shorter). Clicking one plays it; the YouTube icon opens it on YouTube. The drawer also has the Full screen button.
-- Phones fill the whole screen (no side bands), keeping the TV, toggles and duration picker in view; the headline, "How long do you have?" and the duration picker sit above the TV, and the three toggles stack to its right. On phones the first video starts from a tap on the screen (iPhones require it).
+- Phones fill the whole screen (no side bands), keeping the TV, toggles and duration picker in view; on short screens the logo moves to the top-left corner. On phones the first video starts from a tap on the screen (iPhones require it).
 - Phones only run in landscape: held upright, they show a "Turn your phone sideways" screen (and pause the video).
 - Brand: SketchDeck Lab. Syne Regular (headlines, capitals) and Inter (body), self-hosted as WOFF2 in `fonts/` (SIL Open Font License). Text is Blue Moon #161638 or white; the single accent is Pink Floyd #FFB2D5.
 - When a video ends, the next one starts. Videos that can't be embedded are skipped.
