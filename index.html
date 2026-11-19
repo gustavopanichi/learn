@@ -114,6 +114,37 @@
        filter:drop-shadow(0 0 14px rgba(0,0,0,.5));transition:opacity .4s}
   #cue.on{opacity:.9;animation:pulse 1.8s ease-in-out infinite}
   @keyframes pulse{50%{transform:scale(1.1);opacity:.6}}
+  /* intro card: what the site is for. Shown on a dark TV that powers on like a CRT, then the text builds in;
+     the first click on the screen (or play) switches it off and starts the first video with sound. */
+  #intro{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+    padding:0 92px;text-align:center;color:var(--sd-white);opacity:0;transform-origin:50% 50%;
+    background:radial-gradient(120% 95% at 50% 38%,#26265e 0%,var(--sd-blue-moon) 55%,#0c0c22 100%)}
+  #intro h2{margin:0;font:400 35px/1.1 var(--sd-display);text-transform:uppercase}
+  #intro h2 .ln{display:block;overflow:hidden;padding-bottom:.06em}
+  #intro h2 .ln span{display:block;transform:translateY(110%)}
+  #intro p{margin:0;max-width:470px;font:400 16.5px/1.5 var(--sd-body);opacity:0;transform:translateY(10px)}
+  #intro .cta{display:inline-flex;align-items:center;gap:9px;margin-top:4px;padding:12px 20px 12px 16px;border-radius:999px;
+    background:var(--sd-pink-floyd);color:var(--sd-blue-moon);font:700 12.5px/1 var(--sd-body);text-transform:uppercase;
+    opacity:0;transform:scale(.9);transition:background .2s,box-shadow .2s}
+  #intro .cta svg{width:12px;height:12px}
+  #tv:has(#tap:hover) #intro .cta{background:var(--sd-white)}
+  #intro.go{animation:crtOn .9s cubic-bezier(.2,.7,.2,1) forwards}
+  #intro.go h2 .ln span{animation:rise .8s cubic-bezier(.2,.8,.2,1) forwards}
+  #intro.go h2 .ln:nth-child(1) span{animation-delay:.75s}
+  #intro.go h2 .ln:nth-child(2) span{animation-delay:.87s}
+  #intro.go p{animation:fadeUp .7s ease-out 1.15s forwards}
+  #intro.go .cta{animation:pop .55s cubic-bezier(.3,1.5,.5,1) 1.45s forwards,glow 2.4s ease-in-out 2.4s infinite}
+  @keyframes crtOn{0%{opacity:1;transform:scale(.04,.006);filter:brightness(4)}35%{opacity:1;transform:scale(1,.006);filter:brightness(3)}
+    65%{opacity:1;transform:scale(1,1.02);filter:brightness(1.4)}100%{opacity:1;transform:none;filter:none}}
+  @keyframes rise{to{transform:none}}
+  @keyframes fadeUp{to{opacity:1;transform:none}}
+  @keyframes pop{to{opacity:1;transform:none}}
+  @keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(255,178,213,0)}50%{box-shadow:0 0 0 7px rgba(255,178,213,.18)}}
+  #intro.out{animation:crtOff .55s cubic-bezier(.6,0,.8,.4) forwards}
+  #intro.out>*{transition:opacity .08s;opacity:0!important}
+  @keyframes crtOff{0%{opacity:1;transform:none;filter:none}45%{opacity:1;transform:scale(1,.006);filter:brightness(3)}
+    100%{opacity:0;transform:scale(0,.006);filter:brightness(5)}}
+  @media (prefers-reduced-motion:reduce){#intro.go,#intro.go *{animation-duration:.01s!important;animation-delay:0s!important}}
   #screen::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 50px 8px rgba(0,0,0,.45)}
   /* clicks on the screen (the player never gets the mouse, so YouTube never shows its UI) */
   #tap{position:absolute;left:232px;top:34px;width:761px;height:440px;z-index:3;border:0;padding:0;background:none;cursor:pointer}
@@ -188,12 +219,12 @@
   #title{position:absolute;margin:0;z-index:3;pointer-events:none;transition:opacity .6s}
   #logo{display:block;width:100%;height:100%;filter:drop-shadow(0 2px 10px rgba(22,22,56,.3))}
   #stage.loading #title{opacity:0}
-  #sub{top:876px;font-size:24px;font-family:var(--sd-body);text-transform:none}
+  #sub{top:851px;font-size:24px;font-family:var(--sd-body);text-transform:none}
   #stage.loading .serif,#stage.loading #dur{opacity:0}
   .serif,#dur{transition:opacity .6s}
 
   /* 3-way duration toggle, built in its artwork's own pixels (1054×424) and scaled into the scene */
-  #dur{position:absolute;left:860px;top:922px;width:1054px;height:424px;transform:scale(.2072);transform-origin:0 0;z-index:2;
+  #dur{position:absolute;left:860px;top:897px;width:1054px;height:424px;transform:scale(.2072);transform-origin:0 0;z-index:2;
        filter:drop-shadow(0 18px 22px rgba(40,22,8,.35))}
   #dur img{position:absolute;display:block;pointer-events:none;user-select:none}
   #dur .base{left:34px;top:35px;width:985px;height:353px}
@@ -238,6 +269,11 @@
         <div id="yt"><div id="ytp"></div></div>
         <canvas id="static" width="248" height="162"></canvas>
         <img id="thumb" alt="">
+        <div id="intro">
+          <h2><span class="ln"><span>Your daily dose of AI,</span></span><span class="ln"><span>in under 15 minutes.</span></span></h2>
+          <p>Short AI tutorials from the best channels on YouTube, curated for SketchDeck. Choose your time below and we'll queue one up.</p>
+          <span class="cta"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 4.5v15a1 1 0 0 0 1.5.86l12.4-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Start watching</span>
+        </div>
         <svg id="cue" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
       </div>
       <img class="png" src="ui/tv.webp" alt="">
@@ -403,9 +439,10 @@
     if (prev) setTimeout(() => { prev.pause(); prev.remove(); }, 850);
   }
 
-  setTimeout(() => stage.classList.remove('loading'), 6000);   // never keep the controls hidden for long
+  const powerOn = () => { stage.classList.remove('loading'); if (!powerOn.done) { powerOn.done = true; setTimeout(() => document.getElementById('intro')?.classList.add('go'), 300); } };
+  setTimeout(powerOn, 6000);   // never keep the controls hidden for long
   show(sceneName()).then(() => {
-    stage.classList.remove('loading');
+    powerOn();
     FILES.reduce((p, n) => p.then(() => fetchLoop(n)).catch(() => {}), Promise.resolve()); // the rest, one by one
   });
 
@@ -429,6 +466,18 @@
   let bucket = 'Under 5 min';
   let ALL = LISTS[bucket] || [];
   let idx = 0, player = null, ready = false, muted = false, wokeAt = 0, waiting = false;
+  // intro card: up until the first click on the screen, play, refresh, a video in the list, or Enter/Space
+  const intro = document.getElementById('intro'), tapBtn = document.getElementById('tap');
+  let introOn = true, wantStart = false;
+  tapBtn.setAttribute('aria-label', 'Start watching');
+  function hideIntro() {
+    if (!introOn) return false;
+    introOn = false; wokeAt = Date.now(); tapBtn.setAttribute('aria-label', 'Pause or play');
+    intro.classList.add('out'); setTimeout(() => intro.remove(), 700);
+    setNoise(true);
+    return true;
+  }
+  function start() { if (!hideIntro()) return false; if (ready) begin(); else wantStart = true; return true; }
   const yt = document.getElementById('yt'), thumb = document.getElementById('thumb'), cue = document.getElementById('cue');
   const bNext = document.getElementById('b-next'), bPlay = document.getElementById('b-play'), bMute = document.getElementById('b-mute');
   const setDown = (b, on) => { b.classList.toggle('down', on); if (b !== bNext) b.setAttribute('aria-pressed', on); if (b === bPlay) b.setAttribute('aria-label', on ? 'Play' : 'Pause'); };
@@ -442,10 +491,11 @@
     cx.putImageData(img, 0, 0); requestAnimationFrame(noise);
   }
   function setNoise(on) { const was = noiseOn; noiseOn = on; cv.classList.toggle('on', on); if (on && !was) noise(); }
-  setNoise(true);
+  setNoise(false);   // the intro card covers the screen at first
 
   function tune(step) {
     if (!ready || !ALL.length) return;
+    if (introOn) hideIntro();
     idx = (idx + step + ALL.length) % ALL.length; POS[bucket] = idx;
     yt.classList.remove('on'); setNoise(true);
     player.loadVideoById(ALL[idx].id);
@@ -461,37 +511,41 @@
     if (player.getPlayerState() === YT.PlayerState.PLAYING) { setDown(bPlay, true); player.pauseVideo(); } else { setDown(bPlay, false); player.playVideo(); }
   }
 
+  // first play, straight from the visitor's click on the intro (so browsers allow sound)
+  function begin() {
+    player.unMute(); player.setVolume(85); player.playVideo();
+    setTimeout(() => {
+      const st = player.getPlayerState();
+      if (st !== YT.PlayerState.PLAYING && isPhone()) {
+        // phones (iOS especially) only start a video from a tap on the video itself
+        yt.style.pointerEvents = 'auto'; tapBtn.style.display = 'none';
+        yt.classList.add('on'); setNoise(false); return;
+      }
+      if (st !== YT.PlayerState.PLAYING && st !== YT.PlayerState.BUFFERING) {
+        // still refused: wait on the thumbnail for one more click, never fall back to muted
+        waiting = true; player.pauseVideo();
+        thumb.src = `https://i.ytimg.com/vi/${ALL[idx].id}/hqdefault.jpg`;
+        thumb.onload = () => { setNoise(false); thumb.classList.add('on'); cue.classList.add('on'); };
+        const wake = () => {
+          wokeAt = Date.now(); waiting = false; cue.classList.remove('on');
+          setMuted(false);                       // unmutes and plays
+          ['pointerdown', 'keydown', 'touchstart'].forEach(t => removeEventListener(t, wake, true));
+        };
+        ['pointerdown', 'keydown', 'touchstart'].forEach(t => addEventListener(t, wake, true));
+      }
+    }, 1500);
+  }
+
   window.onYouTubeIframeAPIReady = () => {
     if (!ALL.length) return;
     player = new YT.Player('ytp', {
       host: 'https://www.youtube-nocookie.com',
       videoId: ALL[idx].id,
-      playerVars: { autoplay: 1, mute: 0, controls: 0, disablekb: 1, fs: 0, rel: 0, iv_load_policy: 3, playsinline: 1, modestbranding: 1, cc_load_policy: 0, origin: location.origin },
+      playerVars: { autoplay: 0, mute: 0, controls: 0, disablekb: 1, fs: 0, rel: 0, iv_load_policy: 3, playsinline: 1, modestbranding: 1, cc_load_policy: 0, origin: location.origin },
       events: {
         onReady: e => {
-          ready = true; e.target.unMute(); e.target.setVolume(85); e.target.playVideo();
-          // always start with sound. Browsers may refuse sound before the visitor has interacted with
-          // the page; then we never fall back to muted: the TV waits on static and starts, with sound,
-          // at the first click, tap or key press anywhere on the page.
-          setTimeout(() => {
-            const st = e.target.getPlayerState();
-            if (st !== YT.PlayerState.PLAYING && isPhone()) {
-              // phones (iOS especially) only start a video from a tap on the video itself
-              yt.style.pointerEvents = 'auto'; document.getElementById('tap').style.display = 'none';
-              yt.classList.add('on'); setNoise(false); return;
-            }
-            if (st !== YT.PlayerState.PLAYING && st !== YT.PlayerState.BUFFERING) {
-              waiting = true; e.target.pauseVideo();
-              thumb.src = `https://i.ytimg.com/vi/${ALL[idx].id}/hqdefault.jpg`;
-              thumb.onload = () => { setNoise(false); thumb.classList.add('on'); cue.classList.add('on'); };
-              const wake = () => {
-                wokeAt = Date.now(); waiting = false; cue.classList.remove('on');
-                setMuted(false);                       // unmutes and plays
-                ['pointerdown', 'keydown', 'touchstart'].forEach(t => removeEventListener(t, wake, true));
-              };
-              ['pointerdown', 'keydown', 'touchstart'].forEach(t => addEventListener(t, wake, true));
-            }
-          }, 1500);
+          ready = true; e.target.unMute(); e.target.setVolume(85);
+          if (wantStart) begin();
         },
         onStateChange: e => {
           if (e.data === YT.PlayerState.PLAYING) { yt.style.pointerEvents = ''; document.getElementById('tap').style.display = ''; setDown(bPlay, false); setTimeout(() => { yt.classList.add('on'); setNoise(false); thumb.classList.remove('on'); cue.classList.remove('on'); }, 150); }
@@ -505,7 +559,7 @@
   const tag = document.createElement('script'); tag.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(tag);
 
   // screen: pause / resume (the first click after a muted start only turns the sound on)
-  document.getElementById('tap').addEventListener('click', () => { if (Date.now() - wokeAt > 800) togglePause(); });
+  tapBtn.addEventListener('click', () => { if (start()) return; if (Date.now() - wokeAt > 800) togglePause(); });
 
   // next: down while held (at least briefly on a quick tap), then plays the next video
   let downAt = 0;
@@ -513,10 +567,10 @@
   const release = () => setTimeout(() => setDown(bNext, false), Math.max(0, 120 - (Date.now() - downAt)));
   bNext.addEventListener('pointerdown', press);
   ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => bNext.addEventListener(t, release));
-  bNext.addEventListener('click', e => { if (e.detail === 0) { press(); release(); } tune(1); });
+  bNext.addEventListener('click', e => { if (e.detail === 0) { press(); release(); } if (!start()) tune(1); });
 
   // play/pause and mute: latching buttons (stay down until clicked again)
-  bPlay.addEventListener('click', () => { if (Date.now() - wokeAt > 800) togglePause(); });
+  bPlay.addEventListener('click', () => { if (start()) return; if (Date.now() - wokeAt > 800) togglePause(); });
   bMute.addEventListener('click', () => { if (Date.now() - wokeAt > 800) setMuted(!muted); });
 
   /* ---------- Seen videos (remembered in this browser) ---------- */
@@ -573,6 +627,7 @@
     const i = BUCKETS.findIndex(([b]) => b === v.bucket);
     setBucketUI(i); POS[bucket] = idx; bucket = v.bucket; ALL = LISTS[bucket];
     idx = ALL.findIndex(x => x.id === v.id);
+    if (introOn) { hideIntro(); if (!ready) wantStart = true; }
     if (ready) { yt.classList.remove('on'); setNoise(true); player.loadVideoById(v.id); if (muted) setMuted(false); }
     renderList();
   });
@@ -651,6 +706,7 @@
     if (e.key === 'ArrowRight' || e.key === 'n') { press(); release(); tune(1); }
     if (e.key === 'ArrowLeft' || e.key === 'p') tune(-1);
     if (e.key === 'm') setMuted(!muted);
+    if ((e.key === ' ' || e.key === 'Enter') && introOn && !document.body.classList.contains('drawer-open')) { e.preventDefault(); start(); return; }
     if (e.key === ' ') { e.preventDefault(); togglePause(); }
   });
 })();
