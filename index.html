@@ -48,6 +48,9 @@
   #scrim{position:fixed;inset:0;z-index:21;background:rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .45s}
   body.drawer-open #scrim{opacity:1;pointer-events:auto}
 
+  /* SketchDeck halfpipe, fixed to the window's top-left corner */
+  #sd{position:fixed;top:20px;left:20px;z-index:21;height:28px;width:auto;opacity:.9;pointer-events:none;user-select:none}
+
   /* phones held upright: ask to turn sideways (the site only runs in landscape on phones) */
   #rotate{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:32px;text-align:center;
     background:radial-gradient(120% 80% at 50% 40%,#4a3424,#1c130c);color:#f6efe5}
@@ -212,7 +215,7 @@
   <symbol id="i-night" viewBox="0 0 64 64"><path fill="currentColor" fill-rule="nonzero" clip-rule="nonzero" d="m63.787 47.142a1 1 0 0 0 -1.111-.33 33.686 33.686 0 0 1 -10.936 1.8c-17.9 0-32.467-13.874-32.467-30.926a29.717 29.717 0 0 1 4.774-16.144 1 1 0 0 0 -1.162-1.488c-13.685 4.661-22.885 17.127-22.885 31.019 0 18.156 15.462 32.927 34.467 32.927a34.63 34.63 0 0 0 29.374-15.7 1 1 0 0 0 -.054-1.158z"/><path fill="currentColor" fill-rule="nonzero" clip-rule="nonzero" d="m32.5 25.5a4 4 0 0 1 4 4 1 1 0 0 0 2 0 4 4 0 0 1 4-4 1 1 0 0 0 0-2 4 4 0 0 1 -4-4 1 1 0 0 0 -2 0 4 4 0 0 1 -4 4 1 1 0 0 0 0 2z"/><path fill="currentColor" fill-rule="nonzero" clip-rule="nonzero" d="m47 19a4 4 0 0 1 4 4 1 1 0 0 0 2 0 4 4 0 0 1 4-4 1 1 0 0 0 0-2 4 4 0 0 1 -4-4 1 1 0 0 0 -2 0 4 4 0 0 1 -4 4 1 1 0 0 0 0 2z"/><path fill="currentColor" fill-rule="nonzero" clip-rule="nonzero" d="m41 37a1 1 0 0 0 1 1 4 4 0 0 1 4 4 1 1 0 0 0 2 0 4 4 0 0 1 4-4 1 1 0 0 0 0-2 4 4 0 0 1 -4-4 1 1 0 0 0 -2 0 4 4 0 0 1 -4 4 1 1 0 0 0 -1 1z"/></symbol>
 </svg>
 
-<div id="stage" class="loading">
+<div id="stage" class="loading night">
   <div id="scene">
     <div id="bgs"><img id="poster" src="bg/poster.jpg" alt=""></div>
 
@@ -227,13 +230,13 @@
       <button id="tap" aria-label="Pause or play"></button>
       <div id="lcd" role="timer" aria-label="Time left"></div>
       <button class="tvb" id="b-play" aria-label="Pause" aria-pressed="false"><span class="well"></span><span class="cap"><img class="kn" src="ui/knob.webp" alt=""><svg class="ic-off" viewBox="0 0 24 24"><path fill="currentColor" d="M6.5 4.5h3.2a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1v-13a1 1 0 0 1 1-1zm7.8 0h3.2a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-3.2a1 1 0 0 1-1-1v-13a1 1 0 0 1 1-1z"/></svg><svg class="ic-on" viewBox="0 0 24 24"><path fill="currentColor" d="M7 4.9v14.2a1 1 0 0 0 1.53.85l11.1-7.1a1 1 0 0 0 0-1.7L8.53 4.05A1 1 0 0 0 7 4.9z"/></svg></span></button>
-      <button class="tvb" id="b-next" aria-label="Next video"><span class="well"></span><span class="cap"><img class="kn" src="ui/knob.webp" alt=""><svg viewBox="0 0 24 24"><path fill="currentColor" d="M5.5 5.6v12.8a1 1 0 0 0 1.53.85l9.6-6.4a1 1 0 0 0 0-1.7l-9.6-6.4A1 1 0 0 0 5.5 5.6zM17.6 5h1.9a.9.9 0 0 1 .9.9v12.2a.9.9 0 0 1-.9.9h-1.9a.9.9 0 0 1-.9-.9V5.9a.9.9 0 0 1 .9-.9z"/></svg></span></button>
+      <button class="tvb" id="b-next" aria-label="New video"><span class="well"></span><span class="cap"><img class="kn" src="ui/knob.webp" alt=""><svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path fill="currentColor" d="M20.6 3.4v5.9a.8.8 0 0 1-.8.8h-5.9a.8.8 0 0 1-.57-1.37l5.9-5.9a.8.8 0 0 1 1.37.57z"/></svg></span></button>
       <button class="tvb" id="b-mute" aria-label="Mute" aria-pressed="false"><span class="well"></span><span class="cap"><img class="kn" src="ui/knob.webp" alt=""><svg class="ic-off" viewBox="0 0 24 24"><path fill="currentColor" d="M3 9.2v5.6a1 1 0 0 0 1 1h3l4.4 3.6a1 1 0 0 0 1.6-.8V5.4a1 1 0 0 0-1.6-.8L7 8.2H4a1 1 0 0 0-1 1zm13.3-.5 1.9 1.9 1.9-1.9 1.4 1.4-1.9 1.9 1.9 1.9-1.4 1.4-1.9-1.9-1.9 1.9-1.4-1.4 1.9-1.9-1.9-1.9z"/></svg><svg class="ic-on" viewBox="0 0 24 24"><path fill="currentColor" d="M3 9.2v5.6a1 1 0 0 0 1 1h3l4.4 3.6a1 1 0 0 0 1.6-.8V5.4a1 1 0 0 0-1.6-.8L7 8.2H4a1 1 0 0 0-1 1zm12.2-.9a5 5 0 0 1 0 7.4l-1.3-1.4a3 3 0 0 0 0-4.6zm2.6-2.8a8.8 8.8 0 0 1 0 13l-1.3-1.4a6.8 6.8 0 0 0 0-10.2z"/></svg></span></button>
     </div>
 
-    <button class="tg" id="t-pet" data-key="pet" data-a="cat" data-b="dog" role="switch" aria-checked="false" aria-label="Dog instead of cat"></button>
+    <button class="tg" id="t-pet" data-key="pet" data-a="cat" data-b="dog" role="switch" aria-checked="true" aria-label="Dog instead of cat"></button>
     <button class="tg" id="t-drink" data-key="drink" data-a="coffee" data-b="tea" role="switch" aria-checked="false" aria-label="Tea instead of coffee"></button>
-    <button class="tg" id="t-time" data-key="time" data-a="day" data-b="night" role="switch" aria-checked="false" aria-label="Night instead of day"></button>
+    <button class="tg" id="t-time" data-key="time" data-a="day" data-b="night" role="switch" aria-checked="true" aria-label="Night instead of day"></button>
 
     <p class="serif" id="sub">How long do you have?</p>
     <div id="dur" role="radiogroup" aria-label="How long do you have?" data-i="0">
@@ -253,6 +256,7 @@
     <button id="fs"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="m13 .5h-10a2.5009 2.5009 0 0 0 -2.5 2.5v10a2.5009 2.5009 0 0 0 2.5 2.5h10a2.5009 2.5009 0 0 0 2.5-2.5v-10a2.5009 2.5009 0 0 0 -2.5-2.5zm-5.65 8.85-2.15 2.15h.8a.5.5 0 0 1 0 1h-2a.4058.4058 0 0 1 -.19-.04h-.01a.4738.4738 0 0 1 -.26-.26v-.01a.4058.4058 0 0 1 -.04-.19v-2a.5.5 0 0 1 1 0v.8l2.15-2.15a.495.495 0 0 1 .7.7zm5.15-3.35a.5.5 0 0 1 -1 0v-.8l-2.15 2.15a.4833.4833 0 0 1 -.7 0 .4833.4833 0 0 1 0-.7l2.15-2.15h-.8a.5.5 0 0 1 0-1h2a.4058.4058 0 0 1 .19.04h.01a.4738.4738 0 0 1 .26.26v.01a.4058.4058 0 0 1 .04.19z"/></svg><span id="fs-l">Full screen</span></button></header>
   <div class="list" id="list"></div>
 </aside>
+<img id="sd" src="ui/halfpipe.png" alt="SketchDeck">
 <div id="rotate" role="alert">
   <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="18.6" r=".9" fill="currentColor"/></svg>
   <p>Turn your phone sideways</p>
@@ -297,8 +301,8 @@
     const top = Math.max(16, Math.min(oy + 70 * s, tvTop - 12 - h));
     // short phone screens: no room above the TV, so the logo moves to the top-left corner
     if (phone && tvTop - 12 - 16 < 56) {
-      const ch = 52, cw = ch * LW / LH;
-      Object.assign(title.style, { top: '12px', height: ch + 'px', width: cw + 'px', left: '14px' });
+      const ch = 46, cw = ch * LW / LH;
+      Object.assign(title.style, { top: '58px', height: ch + 'px', width: cw + 'px', left: '14px' });
       return;
     }
     const w = h * LW / LH;
@@ -345,8 +349,8 @@
      The starting loop loads first and the site starts as soon as it's ready; the other 7 then download
      one at a time in the background. Only the visible loop (and the one fading in) is kept as a video
      element, so memory stays low. Small screens get 960×540 loops instead of 1920×1080. */
-  const state = { pet: 'cat', drink: 'coffee', time: 'day' };
-  const FILES = ['cat-coffee-day', 'cat-coffee-night', 'cat-tea-day', 'cat-tea-night', 'dog-coffee-day', 'dog-coffee-night', 'dog-tea-day', 'dog-tea-night'];
+  const state = { pet: 'dog', drink: 'coffee', time: 'night' };   // starting scene
+  const FILES = ['dog-coffee-night', 'dog-coffee-day', 'dog-tea-night', 'cat-coffee-night', 'cat-coffee-day', 'dog-tea-day', 'cat-tea-night', 'cat-tea-day'];  // download order: likeliest next first
   const FALLBACK = {}; // e.g. { 'cat-tea-night': 'cat-coffee-night' } if a loop is ever missing
   const sceneW = parseFloat(scene.style.transform.match(/scale\(([\d.]+)\)/)[1]) * W * (devicePixelRatio || 1);
   const DIR = sceneW < 1400 ? 'bg/sm/' : 'bg/';
